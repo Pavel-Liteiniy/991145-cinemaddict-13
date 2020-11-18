@@ -1,7 +1,7 @@
 # Проект «Киноман» [![Build status][travis-image]][travis-url]
 
-* Студент: [Pavel Sevostyanov](https://up.htmlacademy.ru/ecmascript/13/user/991145).
-* Наставник: `Неизвестно`.
+- Студент: [Pavel Sevostyanov](https://up.htmlacademy.ru/ecmascript/13/user/991145).
+- Наставник: [Евгений Лепёшкин](https://htmlacademy.ru/profile/id144641).
 
 ---
 
