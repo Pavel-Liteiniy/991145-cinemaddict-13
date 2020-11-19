@@ -4,6 +4,9 @@ import {createFilmCard} from "./view/film-card";
 import {createContent} from "./view/content";
 import {createMoviesStatistic} from "./view/movies-statistic";
 
+const CARDS_NUMBER = 5;
+const CARDS_EXTRA_NUMBER = 2;
+
 const render = (container, template, position = `beforeend`) => {
   container.insertAdjacentHTML(position, template);
 };
@@ -21,11 +24,8 @@ const filmsListElements = siteMainElement.querySelectorAll(`.films-list`);
 
 Array.from(filmsListElements).forEach((filmsList) => {
   const filmCardcontainer = filmsList.querySelector(`.films-list__container`);
-  let cardsNumber = 5;
 
-  if (filmsList.classList.contains(`films-list--extra`)) {
-    cardsNumber = 2;
-  }
+  let cardsNumber = filmsList.classList.contains(`films-list--extra`) ? CARDS_EXTRA_NUMBER : CARDS_NUMBER;
 
   for (let i = 0; i < cardsNumber; i++) {
     render(filmCardcontainer, createFilmCard());
