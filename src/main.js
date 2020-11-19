@@ -19,7 +19,7 @@ render(siteMainElement, createContent());
 
 const filmsListElements = siteMainElement.querySelectorAll(`.films-list`);
 
-filmsListElements.forEach((filmsList) => {
+Array.from(filmsListElements).forEach((filmsList) => {
   const filmCardcontainer = filmsList.querySelector(`.films-list__container`);
   let cardsNumber = 5;
 
