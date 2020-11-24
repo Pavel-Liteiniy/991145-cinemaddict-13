@@ -3,9 +3,10 @@ import {createMenu} from "./view/menu";
 import {createFilmCard} from "./view/film-card";
 import {createContent} from "./view/content";
 import {createMoviesStatistic} from "./view/movies-statistic";
+import {createPopup} from "./view/popup";
 import {generateFilm} from "./mock/film";
 
-const FILMS_COUNT = 10;
+const FILMS_COUNT = 20;
 const CARDS_NUMBER = 5;
 const CARDS_EXTRA_NUMBER = 2;
 
@@ -39,3 +40,5 @@ Array.from(filmsListElements).forEach((filmsList) => {
 });
 
 render(siteFooterStatisticElement, createMoviesStatistic());
+render(siteBodyElement, createPopup(films[0]));
+
