@@ -5,7 +5,7 @@ import {createContent} from "./view/content";
 import {createMoviesStatistic} from "./view/movies-statistic";
 import {generateFilm} from "./mock/film";
 
-const FILMS_COUNT = 50;
+const FILMS_COUNT = 10;
 const CARDS_NUMBER = 5;
 const CARDS_EXTRA_NUMBER = 2;
 
