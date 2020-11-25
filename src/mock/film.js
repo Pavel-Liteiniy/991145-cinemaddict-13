@@ -1,3 +1,6 @@
+import {getRandomInteger, makeTitleCase} from "./../utils";
+import {MINOR_TITLE_WORDS} from "./../const";
+
 const Film = {
   TITLES: [`made for each other`, `popeye meets sinbad`, `sagebrush trail`, `santa claus conquers the martians`, `the dance of life`, `the great flamarion`, `the man with the golden arm`],
   POSTERS: [`made-for-each-other.png`, `popeye-meets-sinbad.png`, `sagebrush-trail.jpg`, `santa-claus-conquers-the-martians.jpg`, `the-dance-of-life.jpg`, `the-great-flamarion.jpg`, `the-man-with-the-golden-arm.jpg`],
@@ -7,6 +10,10 @@ const Film = {
     LENGTH_MIN: 1,
     LENGTH_MAX: 5,
   },
+  RATING: {
+    MIN: 0,
+    MAX: 100,
+  }
 };
 
 const Comment = {
@@ -19,19 +26,16 @@ const Comment = {
   ],
 };
 
-const getRandomInteger = (max, min = 0) => {
-  return Math.floor(min + Math.random() * (max + 1 - min));
-};
-
 const generateTitle = ({TITLES: titles}) => {
-  return titles[getRandomInteger(titles.length - 1)];
+  const generatedTitle = titles[getRandomInteger(titles.length - 1)].toLowerCase();
+  return (makeTitleCase(generatedTitle, MINOR_TITLE_WORDS));
 };
 
 const generatePoster = (title, {POSTERS: posters}) => {
   let matchedPoster;
 
   for (let poster of posters) {
-    if (poster.startsWith(title.replaceAll(` `, `-`))) {
+    if (poster.startsWith(title.toLowerCase().replaceAll(` `, `-`))) {
       matchedPoster = poster;
       break;
     }
@@ -84,5 +88,8 @@ export const generateFilm = () => {
     poster: generatePoster(title, Film),
     description: generateDescription(Film),
     comments: generateComments(Comment),
+    rating: getRandomInteger(Film.RATING.MAX),
   };
 };
+
+export {Film};
