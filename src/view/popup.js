@@ -20,7 +20,7 @@ const createComments = (comments) => {
   return commentsList.join(``);
 };
 
-export const createPopup = ({title, poster, description, comments}) => {
+export const createPopup = ({title, poster, description, comments, rating}) => {
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -42,7 +42,7 @@ export const createPopup = ({title, poster, description, comments}) => {
             </div>
 
             <div class="film-details__rating">
-              <p class="film-details__total-rating">8.9</p>
+              <p class="film-details__total-rating">${Math.trunc(rating / 10)}.${rating % 10}</p>
             </div>
           </div>
 

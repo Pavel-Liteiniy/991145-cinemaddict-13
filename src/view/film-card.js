@@ -5,16 +5,16 @@ const getCheckedDescription = (description) => {
   return description.length > DESCRIPTION_MAX_LENGTH ? (description.slice(0, DESCRIPTION_MAX_LENGTH - 2) + DESCRIPTION_LAST_ITEM) : description;
 };
 
-export const createFilmCard = ({title, poster, description, comments}) => {
+export const createFilmCard = ({title, poster, description, comments, rating}) => {
   return `<article class="film-card">
   <h3 class="film-card__title">${title}</h3>
-  <p class="film-card__rating">6.3</p>
+  <p class="film-card__rating">${Math.trunc(rating / 10)}.${rating % 10}</p>
   <p class="film-card__info">
     <span class="film-card__year">1936</span>
     <span class="film-card__duration">16m</span>
     <span class="film-card__genre">Cartoon</span>
   </p>
-  <img src="./images/posters/${poster}" alt="" class="film-card__poster">
+  <img src="./images/posters/${poster}" alt="${title}" class="film-card__poster">
   <p class="film-card__description">${getCheckedDescription(description)}</p>
   <a class="film-card__comments">${comments.length} comments</a>
   <div class="film-card__controls">
