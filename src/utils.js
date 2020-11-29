@@ -14,6 +14,10 @@ export const makeTitleCase = (title, minorWords = []) => {
   }).join(` `);
 };
 
+export const getNumberFormat = (value) => {
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ` `);
+};
+
 export const RenderPosition = {
   AFTERBEGIN: `afterbegin`,
   BEFOREEND: `beforeend`
@@ -37,5 +41,5 @@ export const renderTemplate = (container, template, position = `beforeend`) => {
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
-  return newElement.firstChild;
+  return newElement.firstChild || ``;
 };
