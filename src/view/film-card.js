@@ -1,3 +1,5 @@
+import {createElement} from "../utils";
+
 const DESCRIPTION_MAX_LENGTH = 140;
 const DESCRIPTION_LAST_ITEM = `...`;
 
@@ -5,7 +7,7 @@ const getCheckedDescription = (description) => {
   return description.length > DESCRIPTION_MAX_LENGTH ? (description.slice(0, DESCRIPTION_MAX_LENGTH - 2) + DESCRIPTION_LAST_ITEM) : description;
 };
 
-export const createFilmCard = ({title, poster, description, comments, rating}) => {
+const createFilmCard = ({title, poster, description, comments, rating}) => {
   return `<article class="film-card">
   <h3 class="film-card__title">${title}</h3>
   <p class="film-card__rating">${Math.trunc(rating / 10)}.${rating % 10}</p>
@@ -24,3 +26,23 @@ export const createFilmCard = ({title, poster, description, comments, rating}) =
   </div>
 </article>`;
 };
+
+export default class MovieCard {
+  constructor(film) {
+    this._element = null;
+    this._film = film;
+  }
+
+  getTemplate() {
+    return createFilmCard(this._film);
+  }
+
+  getElement() {
+    this._element = this._element ? this._element : createElement(this.getTemplate());
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
