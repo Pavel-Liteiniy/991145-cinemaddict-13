@@ -142,8 +142,12 @@ const createPopup = ({title, poster, description, comments, rating}) => {
 };
 
 export default class Popup {
-  constructor(film) {
+  constructor() {
     this._element = null;
+    this._film = null;
+  }
+
+  setFilm(film) {
     this._film = film;
   }
 
