@@ -30,7 +30,7 @@ render(siteMainElement, new FilmsWrapperView(user).getElement());
 
 const siteFilmsWrapperElement = siteBodyElement.querySelector(`.films`);
 
-const filmsCatalogComponent = new FilmsCatalogView();
+const filmsCatalogComponent = new FilmsCatalogView(films);
 const movieCardContainer = filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
 
 render(siteFilmsWrapperElement, filmsCatalogComponent.getElement());
