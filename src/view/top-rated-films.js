@@ -6,24 +6,23 @@ const checkRating = (films) => {
   });
 };
 
-const createTopRatedFilms = (films, cards) => {
+const createTopRatedFilms = (films) => {
   return checkRating(films) ?
     `<section class="films-list films-list--extra">
 <h2 class="films-list__title">Top rated</h2>
-<div class="films-list__container">${cards.join(``)}</div>
+<div class="films-list__container"></div>
 </section>`
     : `<section class="films-list films-list--extra"></section>`;
 };
 
 export default class TopRatedFilms {
-  constructor(films, cards) {
+  constructor(films) {
     this._element = null;
     this._films = films;
-    this._cards = cards;
   }
 
   getTemplate() {
-    return createTopRatedFilms(this._films, this._cards);
+    return createTopRatedFilms(this._films);
   }
 
   getElement() {

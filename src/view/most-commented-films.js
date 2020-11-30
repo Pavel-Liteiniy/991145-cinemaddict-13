@@ -6,24 +6,23 @@ const checkComments = (films) => {
   });
 };
 
-const createMostCommentedFilms = (films, cards) => {
+const createMostCommentedFilms = (films) => {
   return checkComments(films) ?
     `<section class="films-list films-list--extra">
   <h2 class="films-list__title">Most commented</h2>
-  <div class="films-list__container">${cards.join(``)}</div>
+  <div class="films-list__container"></div>
   </section>`
     : `<section class="films-list films-list--extra"></section>`;
 };
 
 export default class MostCommentedFilms {
-  constructor(films, cards) {
+  constructor(films) {
     this._element = null;
     this._films = films;
-    this._cards = cards;
   }
 
   getTemplate() {
-    return createMostCommentedFilms(this._films, this._cards);
+    return createMostCommentedFilms(this._films);
   }
 
   getElement() {
