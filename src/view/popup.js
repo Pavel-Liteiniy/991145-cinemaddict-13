@@ -1,3 +1,5 @@
+import {createElement} from "../utils";
+
 const createComments = (comments) => {
   let commentsList = [];
 
@@ -17,10 +19,10 @@ const createComments = (comments) => {
   </li>`);
   }
 
-  return commentsList.join(``);
+  return commentsList;
 };
 
-export const createPopup = ({title, poster, description, comments, rating}) => {
+const createPopup = ({title, poster, description, comments, rating}) => {
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -102,7 +104,7 @@ export const createPopup = ({title, poster, description, comments, rating}) => {
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
-        <ul class="film-details__comments-list">${createComments(comments)}</ul>
+        <ul class="film-details__comments-list">${createComments(comments).join(``)}</ul>
 
         <div class="film-details__new-comment">
           <div class="film-details__add-emoji-label"></div>
@@ -138,3 +140,27 @@ export const createPopup = ({title, poster, description, comments, rating}) => {
   </form>
 </section>`;
 };
+
+export default class Popup {
+  constructor() {
+    this._element = null;
+    this._film = null;
+  }
+
+  setFilm(film) {
+    this._film = film;
+  }
+
+  getTemplate() {
+    return createPopup(this._film);
+  }
+
+  getElement() {
+    this._element = this._element ? this._element : createElement(this.getTemplate());
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
