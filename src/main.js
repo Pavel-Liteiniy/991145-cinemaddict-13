@@ -73,7 +73,7 @@ const onMovieCardClick = (movieData) => {
   });
 
   siteBodyElement.classList.add(`hide-overflow`);
-  siteBodyElement.appendChild(popupElement)
+  siteBodyElement.appendChild(popupElement);
 };
 
 const onEscKeyDown = (evt) => {
@@ -85,14 +85,18 @@ const onEscKeyDown = (evt) => {
 
 const renderFilmsCatalog = (movies, cardsCount) => {
   if (renderedFilms < movies.length) {
+    const fragment = document.createDocumentFragment();
+
     movies.slice(renderedFilms, renderedFilms + cardsCount).forEach((movie) => {
       const movieCard = new MovieCardView(movie);
 
       addMovieCardListeners(movieCard, onMovieCardClick);
-      render(movieCardContainer, movieCard.getElement());
+      fragment.appendChild(movieCard.getElement());
 
       renderedFilms++;
     });
+
+    render(movieCardContainer, fragment);
   }
 };
 
@@ -126,17 +130,17 @@ const getMostCommentedFilms = (movies, quantity) => {
   }).slice(0, quantity);
 };
 
-const createFilmCardElements = (movies) => {
-  const filmCardElements = [];
+const renderFilmCardElements = (container, movies, position = `beforeend`) => {
+  const fragment = document.createDocumentFragment();
 
   movies.map((movie) => {
     const movieCard = new MovieCardView(movie);
 
     addMovieCardListeners(movieCard, onMovieCardClick);
-    return filmCardElements.push(movieCard.getElement());
+    fragment.appendChild(movieCard.getElement());
   });
 
-  return filmCardElements;
+  render(container, fragment, position);
 };
 
 const topRatedFilms = getTopRatedFilms(films, CARDS_EXTRA_COUNT);
@@ -147,9 +151,7 @@ const renderExtraFilms = (component, movies) => {
   render(siteFilmsWrapperElement, component.getElement());
 
   if (componentFilmsContainer) {
-    createFilmCardElements(movies).forEach((filmCard) => {
-      render(componentFilmsContainer, filmCard);
-    });
+    renderFilmCardElements(componentFilmsContainer, movies);
   }
 };
 
