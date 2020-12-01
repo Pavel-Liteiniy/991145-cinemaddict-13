@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractView from "./abstract";
 
 const DESCRIPTION_MAX_LENGTH = 140;
 const DESCRIPTION_LAST_ITEM = `...`;
@@ -27,9 +27,9 @@ const createFilmCard = ({title, poster, description, comments, rating}) => {
 </article>`;
 };
 
-export default class MovieCard {
+export default class MovieCard extends AbstractView {
   constructor(film) {
-    this._element = null;
+    super();
     this._film = film;
   }
 
@@ -37,16 +37,7 @@ export default class MovieCard {
     return createFilmCard(this._film);
   }
 
-  getElement() {
-    this._element = this._element ? this._element : createElement(this.getTemplate());
-    return this._element;
-  }
-
   getFilm() {
     return this._film;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

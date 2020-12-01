@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractView from "./abstract";
 
 const createMenu = ({WATCHLIST: watchlist, HISTORY: history, FAVORITES: favorites}) => {
   return `<nav class="main-navigation">
@@ -18,22 +18,13 @@ const createMenu = ({WATCHLIST: watchlist, HISTORY: history, FAVORITES: favorite
 </ul>`;
 };
 
-export default class Menu {
+export default class Menu extends AbstractView {
   constructor(user) {
-    this._element = null;
+    super();
     this._user = user;
   }
 
   getTemplate() {
     return createMenu(this._user);
-  }
-
-  getElement() {
-    this._element = this._element ? this._element : createElement(this.getTemplate());
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
