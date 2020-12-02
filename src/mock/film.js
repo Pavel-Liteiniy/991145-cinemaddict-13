@@ -1,4 +1,4 @@
-import {getRandomInteger, makeTitleCase} from "./../utils";
+import {getRandomInteger, makeTitleCase} from "./../utils/common";
 import {MINOR_TITLE_WORDS} from "./../const";
 
 const Film = {

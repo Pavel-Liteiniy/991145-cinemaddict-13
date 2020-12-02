@@ -1,4 +1,4 @@
-import {getNumberFormat} from "../utils";
+import {getNumberFormat} from "../utils/common";
 import AbstractView from "./abstract";
 
 
