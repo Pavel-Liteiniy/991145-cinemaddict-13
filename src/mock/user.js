@@ -1,5 +1,5 @@
 import {USER_RANK} from "./../const";
-import {getRandomInteger} from "./../utils";
+import {getRandomInteger} from "./../utils/common";
 import {Film} from "./film";
 
 const getRandomTitles = ({TITLES: titles}) => {

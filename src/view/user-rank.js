@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractView from "./abstract";
 
 const createUserRank = ({RANK: rank}) => {
   return rank ?
@@ -9,22 +9,13 @@ const createUserRank = ({RANK: rank}) => {
     : ``;
 };
 
-export default class UserRank {
+export default class UserRank extends AbstractView {
   constructor(user) {
-    this._element = null;
+    super();
     this._user = user;
   }
 
   getTemplate() {
     return createUserRank(this._user);
-  }
-
-  getElement() {
-    this._element = this._element ? this._element : createElement(this.getTemplate());
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
