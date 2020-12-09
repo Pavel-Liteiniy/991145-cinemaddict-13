@@ -1,11 +1,11 @@
 import {remove, render} from "../utils/render";
 import FilmsWrapperView from "../view/films-wrapper";
 import FilmsCatalogView from "../view/films-catalog";
-import PopupView from "../view/popup";
 import ShowButtonView from "../view/show-button";
-import MovieCardView from "../view/film-card";
+import PopupView from "../view/popup";
 import TopRatedFilmsView from "../view/top-rated-films";
 import MostCommentedFilmsView from "../view/most-commented-films";
+import MoviePresenter from "./movie";
 
 const CARDS_COUNT = 5;
 const CARDS_EXTRA_COUNT = 2;
@@ -18,14 +18,11 @@ export default class MovieList {
   constructor(filmsContainer) {
     this._filmsContainer = filmsContainer;
 
-    this._filmsWrapperComponent = new FilmsWrapperView();
     this._popupComponent = new PopupView();
+    this._filmsWrapperComponent = new FilmsWrapperView();
     this._showButtonComponent = new ShowButtonView();
 
-    this._popupEscKeyDownHandler = this._popupEscKeyDownHandler.bind(this);
     this._showButtonClickHandler = this._showButtonClickHandler.bind(this);
-    this._movieCardClickHandler = this._movieCardClickHandler.bind(this);
-    this._popupClickHandler = this._popupClickHandler.bind(this);
   }
 
   init(films) {
@@ -41,7 +38,7 @@ export default class MovieList {
     this._renderedFilms = CARDS_COUNT;
 
     if (this._renderedFilms < this._films.length) {
-      render(this._filmsCatalogComponent.getElement(), this._showButtonComponent);
+      render(this._filmsCatalogComponent, this._showButtonComponent);
       this._showButtonComponent.setClickHandler(this._showButtonClickHandler);
     }
 
@@ -53,36 +50,9 @@ export default class MovieList {
     const fragment = document.createDocumentFragment();
 
     movies.map((movie) => {
-      const movieCard = new MovieCardView(movie);
-      movieCard.setClickHandler(this._movieCardClickHandler);
-
-      fragment.appendChild(movieCard.getElement());
+      new MoviePresenter(fragment, this._popupComponent).init(movie);
     });
-
     render(container, fragment, position);
-  }
-
-  _movieCardClickHandler(movie) {
-    this._popupComponent.setFilm(movie);
-    this._popupComponent.setClickHandler(this._popupClickHandler);
-
-    document.addEventListener(`keydown`, this._popupEscKeyDownHandler);
-    document.querySelector(`body`).classList.add(`hide-overflow`);
-
-    render(document.querySelector(`body`), this._popupComponent.getElement());
-  }
-
-  _popupClickHandler() {
-    document.removeEventListener(`keydown`, this._popupEscKeyDownHandler);
-    document.querySelector(`body`).classList.remove(`hide-overflow`);
-    remove(this._popupComponent);
-  }
-
-  _popupEscKeyDownHandler(evt) {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
-      evt.preventDefault();
-      this._popupClickHandler();
-    }
   }
 
   _showButtonClickHandler() {
@@ -90,8 +60,7 @@ export default class MovieList {
     this._renderedFilms += CARDS_COUNT;
 
     if (this._renderedFilms >= this._films.length) {
-      this._showButtonComponent.getElement().remove();
-      this._showButtonComponent.removeElement();
+      remove(this._showButtonComponent);
     }
   }
 
@@ -108,7 +77,7 @@ export default class MovieList {
   }
 
   _renderExtraFilms(componentContainer, movies) {
-    render(this._filmsCardContainer, componentContainer);
+    render(this._filmsWrapperComponent, componentContainer);
     const componentFilmsContainer = componentContainer.getElement().querySelector(`.films-list__container`);
 
     if (componentFilmsContainer) {
