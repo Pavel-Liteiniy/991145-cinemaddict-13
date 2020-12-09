@@ -17,6 +17,9 @@ const TypeExtraFilms = {
 export default class MovieList {
   constructor(filmsContainer) {
     this._filmsContainer = filmsContainer;
+    this._cardsCount = CARDS_COUNT;
+    this._cardsExtraCount = CARDS_EXTRA_COUNT;
+    this._typeExtraFilms = TypeExtraFilms;
 
     this._popupComponent = new PopupView();
     this._filmsWrapperComponent = new FilmsWrapperView();
@@ -33,17 +36,17 @@ export default class MovieList {
     render(this._filmsContainer, this._filmsWrapperComponent);
     render(this._filmsWrapperComponent, this._filmsCatalogComponent);
 
-    this._renderFilmCardElements(this._filmsCardContainer, this._films.slice(0, CARDS_COUNT));
+    this._renderFilmCardElements(this._filmsCardContainer, this._films.slice(0, this._cardsCount));
 
-    this._renderedFilms = CARDS_COUNT;
+    this._renderedFilms = this._cardsCount;
 
     if (this._renderedFilms < this._films.length) {
       render(this._filmsCatalogComponent, this._showButtonComponent);
       this._showButtonComponent.setClickHandler(this._showButtonClickHandler);
     }
 
-    this._createExtraFilmsElement(this._films, TypeExtraFilms.TOP_RATED);
-    this._createExtraFilmsElement(this._films, TypeExtraFilms.MOST_COMMENTED);
+    this._createExtraFilmsElement(this._films, this._typeExtraFilms.TOP_RATED);
+    this._createExtraFilmsElement(this._films, this._typeExtraFilms.MOST_COMMENTED);
   }
 
   _renderFilmCardElements(container, movies, position = `beforeend`) {
@@ -56,8 +59,8 @@ export default class MovieList {
   }
 
   _showButtonClickHandler() {
-    this._renderFilmCardElements(this._filmsCardContainer, this._films.slice(this._renderedFilms, this._renderedFilms + CARDS_COUNT));
-    this._renderedFilms += CARDS_COUNT;
+    this._renderFilmCardElements(this._filmsCardContainer, this._films.slice(this._renderedFilms, this._renderedFilms + this._cardsCount));
+    this._renderedFilms += this._cardsCount;
 
     if (this._renderedFilms >= this._films.length) {
       remove(this._showButtonComponent);
@@ -88,11 +91,11 @@ export default class MovieList {
   _createExtraFilmsElement(movies, typeExtraFilms) {
     switch (typeExtraFilms) {
       case TypeExtraFilms.TOP_RATED:
-        this._extraFilms = this._getTopRatedFilms(movies, CARDS_EXTRA_COUNT);
+        this._extraFilms = this._getTopRatedFilms(movies, this._cardsExtraCount);
         this._extraComponent = new TopRatedFilmsView(this._extraFilms);
         break;
       case TypeExtraFilms.MOST_COMMENTED:
-        this._extraFilms = this._getMostCommentedFilms(movies, CARDS_EXTRA_COUNT);
+        this._extraFilms = this._getMostCommentedFilms(movies, this._cardsExtraCount);
         this._extraComponent = new MostCommentedFilmsView(this._extraFilms);
         break;
     }
