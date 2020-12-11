@@ -17,3 +17,17 @@ export const makeTitleCase = (title, minorWords = []) => {
 export const getNumberFormat = (value) => {
   return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ` `);
 };
+
+export const updateItem = (items, update) => {
+  const index = items.findIndex((item) => item.id === update.id);
+
+  if (index === -1) {
+    return items;
+  }
+
+  return [
+    ...items.slice(0, index),
+    update,
+    ...items.slice(index + 1)
+  ];
+};

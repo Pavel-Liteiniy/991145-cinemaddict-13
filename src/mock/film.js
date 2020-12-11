@@ -1,3 +1,4 @@
+import {nanoid} from "nanoid";
 import {getRandomInteger, makeTitleCase} from "./../utils/common";
 import {MINOR_TITLE_WORDS} from "./../const";
 
@@ -84,11 +85,15 @@ export const generateFilm = () => {
   const title = generateTitle(Film);
 
   return {
+    id: nanoid(),
     title,
     poster: generatePoster(title, Film),
     description: generateDescription(Film),
     comments: generateComments(Comment),
     rating: getRandomInteger(Film.RATING.MAX),
+    inWatchListCollection: !!getRandomInteger(1),
+    inWatchedCollection: !!getRandomInteger(1),
+    inFavoriteCollection: !!getRandomInteger(1),
   };
 };
 

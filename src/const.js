@@ -5,3 +5,8 @@ export const USER_RANK = new Map([
   [[11, 20], `fan`],
   [[21, Infinity], `movie buff`],
 ]);
+export const FilmsCollection = {
+  WATCH_LIST: `add-to-watchlist`,
+  WATCHED: `mark-as-watched`,
+  FAVORITE: `mark-as-favorite`,
+};
