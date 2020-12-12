@@ -23,6 +23,7 @@ export default class MovieList {
     this._cardsExtraCount = CARDS_EXTRA_COUNT;
     this._typeExtraFilms = TypeExtraFilms;
     this._allMoviesComponents = new Map();
+    this._extraMoviesComponents = new Map();
 
     this._topRatedFilms = [];
     this._mostCommentedFilms = [];
@@ -95,6 +96,7 @@ export default class MovieList {
       movies.map((movie) => {
         const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleFilmChange);
         filmComponent.init(movie);
+        this._extraMoviesComponents.set(movie.id, filmComponent);
       });
     }
   }
@@ -116,21 +118,13 @@ export default class MovieList {
 
   _handleFilmChange(film) {
     this._films = updateItem(this._films, film);
-    this._allMoviesComponents.get(film.id).init(film);
 
-    const isTopRatedFilm = this._topRatedFilms.some((topRatedFilm) => {
-      return film.id === topRatedFilm.id;
-    });
+    if (this._allMoviesComponents.has(film.id)) {
+      this._allMoviesComponents.get(film.id).init(film);
+    }
 
-    const isMostCommentedFilm = this._mostCommentedFilms.some((mostCommentedFilm) => {
-      return film.id === mostCommentedFilm.id;
-    });
-
-    if (isTopRatedFilm || isMostCommentedFilm) {
-      remove(this._topRatedComponent);
-      remove(this._mostCommentedComponent);
-      this._createExtraFilmsElement(this._films, this._typeExtraFilms.TOP_RATED);
-      this._createExtraFilmsElement(this._films, this._typeExtraFilms.MOST_COMMENTED);
+    if (this._extraMoviesComponents.has(film.id)) {
+      this._extraMoviesComponents.get(film.id).init(film);
     }
   }
 }
