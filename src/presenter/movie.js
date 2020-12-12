@@ -1,6 +1,9 @@
 import {remove, render, replace} from "../utils/render";
 import MovieCardView from "../view/film-card";
 
+const KEY_ESCAPE = `Escape`;
+const KEY_ESC = `Esc`;
+
 export default class Movie {
   constructor(movieContainer, popupComponent, handleFilmChange) {
     this._bodyElement = document.querySelector(`body`);
@@ -64,7 +67,7 @@ export default class Movie {
   }
 
   _popupEscKeyDownHandler(evt) {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
+    if (evt.key === KEY_ESCAPE || evt.key === KEY_ESC) {
       evt.preventDefault();
       this._popupClickHandler();
     }
