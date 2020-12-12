@@ -1,4 +1,5 @@
-import {remove, render} from "../utils/render";
+import {SortType} from "../const";
+import {remove, render, replace} from "../utils/render";
 import FilmsWrapperView from "../view/films-wrapper";
 import FilmsCatalogView from "../view/films-catalog";
 import MoviesSortView from "../view/sort";
@@ -22,19 +23,22 @@ export default class MovieList {
     this._cardsCount = CARDS_COUNT;
     this._cardsExtraCount = CARDS_EXTRA_COUNT;
     this._typeExtraFilms = TypeExtraFilms;
+    this._sortType = SortType;
     this._allMoviesComponents = new Map();
     this._extraMoviesComponents = new Map();
 
     this._topRatedFilms = [];
     this._mostCommentedFilms = [];
+    this._sortTypeSelected = this._sortType.BY_DEFAULT;
 
     this._popupComponent = new PopupView();
     this._filmsWrapperComponent = new FilmsWrapperView();
-    this._moviesSortComponent = new MoviesSortView();
+    this._moviesSortComponent = new MoviesSortView(this._sortTypeSelected);
     this._showButtonComponent = new ShowButtonView();
 
     this._showButtonClickHandler = this._showButtonClickHandler.bind(this);
     this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
   init(films) {
@@ -42,7 +46,9 @@ export default class MovieList {
     this._filmsCatalogComponent = new FilmsCatalogView(this._films);
     this._filmsCardContainer = this._filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
 
+    this._moviesSortComponent.setClickHandler(this._handleSortTypeChange);
     render(this._filmsContainer, this._moviesSortComponent);
+
     render(this._filmsContainer, this._filmsWrapperComponent);
     render(this._filmsWrapperComponent, this._filmsCatalogComponent);
 
@@ -125,6 +131,21 @@ export default class MovieList {
 
     if (this._extraMoviesComponents.has(film.id)) {
       this._extraMoviesComponents.get(film.id).init(film);
+    }
+  }
+
+  _handleSortTypeChange(newSortType) {
+    if (newSortType !== this._sortTypeSelected) {
+      const prevMoviesSortComponent = this._moviesSortComponent;
+      this._sortTypeSelected = newSortType;
+      this._moviesSortComponent = new MoviesSortView(this._sortTypeSelected);
+      this._moviesSortComponent.setClickHandler(this._handleSortTypeChange);
+
+      if (this._filmsContainer.contains(prevMoviesSortComponent.getElement())) {
+        replace(this._moviesSortComponent, prevMoviesSortComponent);
+      }
+
+      remove(prevMoviesSortComponent);
     }
   }
 }
