@@ -3,6 +3,14 @@ import dayjs from "dayjs";
 import {getRandomInteger, makeTitleCase} from "./../utils/common";
 import {MINOR_TITLE_WORDS} from "./../const";
 
+const DatesDraft = {
+  YEAR: {
+    FILM: [dayjs().year(), 1900],
+    COMMENT: [dayjs().year(), 2018],
+  },
+  MONTH: [11, 0],
+};
+
 const Film = {
   TITLES: [`made for each other`, `popeye meets sinbad`, `sagebrush trail`, `santa claus conquers the martians`, `the dance of life`, `the great flamarion`, `the man with the golden arm`],
   POSTERS: [`made-for-each-other.png`, `popeye-meets-sinbad.png`, `sagebrush-trail.jpg`, `santa-claus-conquers-the-martians.jpg`, `the-dance-of-life.jpg`, `the-great-flamarion.jpg`, `the-man-with-the-golden-arm.jpg`],
@@ -66,9 +74,17 @@ const generateDescription = ({
   return randomSentences.join(` `);
 };
 
-const generateDate = () => {
-  const randomYear = getRandomInteger(...Comment.DATE.YEAR);
-  const randomMonth = getRandomInteger(...Comment.DATE.MONTH);
+const generateFilmDate = () => {
+  const randomYear = getRandomInteger(...DatesDraft.YEAR.FILM);
+  const randomMonth = getRandomInteger(...DatesDraft.MONTH);
+  const randomDay = getRandomInteger(dayjs(randomMonth).daysInMonth(), 1);
+
+  return dayjs(new Date(randomYear, randomMonth, randomDay));
+};
+
+const generateCommentDate = () => {
+  const randomYear = getRandomInteger(...DatesDraft.YEAR.COMMENT);
+  const randomMonth = getRandomInteger(...DatesDraft.MONTH);
   const randomDay = getRandomInteger(dayjs(randomMonth).daysInMonth(), 1);
 
   return dayjs(new Date(randomYear, randomMonth, randomDay));
@@ -83,7 +99,7 @@ const createComment = ({
     message: messages[getRandomInteger(messages.length - 1)],
     emoji: emojis[getRandomInteger(emojis.length - 1)],
     author: authors[getRandomInteger(authors.length - 1)],
-    date: generateDate(),
+    date: generateCommentDate(),
   };
 };
 
@@ -99,6 +115,7 @@ export const generateFilm = () => {
     title,
     poster: generatePoster(title, Film),
     description: generateDescription(Film),
+    date: generateFilmDate(),
     comments: generateComments(Comment),
     rating: getRandomInteger(Film.RATING.MAX),
     inWatchListCollection: !!getRandomInteger(1),
