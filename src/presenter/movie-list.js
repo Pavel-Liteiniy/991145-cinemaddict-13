@@ -23,13 +23,12 @@ export default class MovieList {
     this._cardsCount = CARDS_COUNT;
     this._cardsExtraCount = CARDS_EXTRA_COUNT;
     this._typeExtraFilms = TypeExtraFilms;
-    this._sortType = SortType;
-    this._allMoviesComponents = new Map();
-    this._extraMoviesComponents = new Map();
+    this._allMoviesPresenters = new Map();
+    this._extraMoviesPresenters = new Map();
 
     this._topRatedFilms = [];
     this._mostCommentedFilms = [];
-    this._sortTypeSelected = this._sortType.BY_DEFAULT;
+    this._sortTypeSelected = SortType.BY_DEFAULT;
 
     this._popupComponent = new PopupView();
     this._filmsWrapperComponent = new FilmsWrapperView();
@@ -43,6 +42,7 @@ export default class MovieList {
 
   init(films) {
     this._films = films.slice();
+    this._sourcedFilms = films.slice();
     this._filmsCatalogComponent = new FilmsCatalogView(this._films);
     this._filmsCardContainer = this._filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
 
@@ -52,15 +52,22 @@ export default class MovieList {
     render(this._filmsContainer, this._filmsWrapperComponent);
     render(this._filmsWrapperComponent, this._filmsCatalogComponent);
 
-    this._renderFilmCardElements(this._filmsCardContainer, this._films.slice(0, this._cardsCount));
-
     this._renderedFilms = this._cardsCount;
+    this._renderAllMoviesList();
+
+    this._renderExtraFilmsLists();
+  }
+
+  _renderAllMoviesList() {
+    this._renderFilmCardElements(this._filmsCardContainer, this._films.slice(0, this._cardsCount));
 
     if (this._renderedFilms < this._films.length) {
       render(this._filmsCatalogComponent, this._showButtonComponent);
       this._showButtonComponent.setClickHandler(this._showButtonClickHandler);
     }
+  }
 
+  _renderExtraFilmsLists() {
     this._createExtraFilmsElement(this._films, this._typeExtraFilms.TOP_RATED);
     this._createExtraFilmsElement(this._films, this._typeExtraFilms.MOST_COMMENTED);
   }
@@ -69,7 +76,7 @@ export default class MovieList {
     movies.map((movie) => {
       const filmComponent = new MoviePresenter(container, this._popupComponent, this._handleFilmChange);
       filmComponent.init(movie);
-      this._allMoviesComponents.set(movie.id, filmComponent);
+      this._allMoviesPresenters.set(movie.id, filmComponent);
     });
   }
 
@@ -102,7 +109,7 @@ export default class MovieList {
       movies.map((movie) => {
         const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleFilmChange);
         filmComponent.init(movie);
-        this._extraMoviesComponents.set(movie.id, filmComponent);
+        this._extraMoviesPresenters.set(movie.id, filmComponent);
       });
     }
   }
@@ -125,12 +132,12 @@ export default class MovieList {
   _handleFilmChange(film) {
     this._films = updateItem(this._films, film);
 
-    if (this._allMoviesComponents.has(film.id)) {
-      this._allMoviesComponents.get(film.id).init(film);
+    if (this._allMoviesPresenters.has(film.id)) {
+      this._allMoviesPresenters.get(film.id).init(film);
     }
 
-    if (this._extraMoviesComponents.has(film.id)) {
-      this._extraMoviesComponents.get(film.id).init(film);
+    if (this._extraMoviesPresenters.has(film.id)) {
+      this._extraMoviesPresenters.get(film.id).init(film);
     }
   }
 
@@ -146,6 +153,36 @@ export default class MovieList {
       }
 
       remove(prevMoviesSortComponent);
+
+      this._sortFilms(newSortType);
+      this._clearAllMoviesList();
+      this._renderAllMoviesList();
     }
+  }
+
+  _sortFilms(newSortType) {
+    switch (newSortType) {
+      case SortType.BY_RATING:
+        this._films.sort(({rating: a}, {rating: b}) => {
+          return b - a;
+        });
+        break;
+      case SortType.BY_DATE:
+        this._films.sort(({date: a}, {date: b}) => {
+          return b - a;
+        });
+        break;
+      default:
+        this._films = this._sourcedFilms.slice();
+    }
+
+    this._sortTypeSelected = newSortType;
+  }
+
+  _clearAllMoviesList() {
+    this._allMoviesPresenters.forEach((presenter) => presenter.destroy());
+    this._allMoviesPresenters.clear();
+    this._renderedFilms = this._cardsCount;
+    remove(this._showButtonComponent);
   }
 }
