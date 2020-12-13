@@ -27,7 +27,7 @@ const createComments = (comments) => {
   return commentsList;
 };
 
-const createPopup = ({title, poster, description, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
+const createPopup = ({title, poster, description, date, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -68,7 +68,7 @@ const createPopup = ({title, poster, description, comments, rating, inWatchListC
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">30 March 1945</td>
+              <td class="film-details__cell">${dayjs(date).format(`D MMMM YYYY`)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
