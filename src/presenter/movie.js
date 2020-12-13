@@ -41,6 +41,10 @@ export default class Movie {
     remove(prevMovieCardComponent);
   }
 
+  destroy() {
+    remove(this._movieCardComponent);
+  }
+
   _movieCardClickHandler() {
     this._popupComponent.setFilm(this._film);
     this._popupComponent.setClickHandler(this._popupClickHandler);
