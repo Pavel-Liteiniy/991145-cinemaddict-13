@@ -1,4 +1,5 @@
 import {nanoid} from "nanoid";
+import dayjs from "dayjs";
 import {getRandomInteger, makeTitleCase} from "./../utils/common";
 import {MINOR_TITLE_WORDS} from "./../const";
 
@@ -23,8 +24,10 @@ const Comment = {
   MESSAGES: [`Interesting setting and a good cast`, `Booooooooooring`, `Very very old. Meh`, `Almost two hours? Seriously?`, `Not so bad`],
   EMOJIS: [`smile`, `sleeping`, `puke`, `angry`],
   AUTHORS: [`John Doe`, `Doe John`, `John John`, `Doe Doe`, `John John Doe`],
-  DATES: [`2013/12/31 23:59`, `2010/10/01 10:10`, `2005/05/15 15:55`, `2020/09/29 22:09`, `2000/01/01 00:01`,
-  ],
+  DATE: {
+    YEAR: [dayjs().year(), 2019],
+    MONTH: [11, 0],
+  }
 };
 
 const generateTitle = ({TITLES: titles}) => {
@@ -63,17 +66,24 @@ const generateDescription = ({
   return randomSentences.join(` `);
 };
 
+const generateDate = () => {
+  const randomYear = getRandomInteger(...Comment.DATE.YEAR);
+  const randomMonth = getRandomInteger(...Comment.DATE.MONTH);
+  const randomDay = getRandomInteger(dayjs(randomMonth).daysInMonth(), 1);
+
+  return dayjs(new Date(randomYear, randomMonth, randomDay));
+};
+
 const createComment = ({
   MESSAGES: messages,
   EMOJIS: emojis,
   AUTHORS: authors,
-  DATES: dates,
 }) => {
   return {
     message: messages[getRandomInteger(messages.length - 1)],
     emoji: emojis[getRandomInteger(emojis.length - 1)],
     author: authors[getRandomInteger(authors.length - 1)],
-    date: dates[getRandomInteger(dates.length - 1)],
+    date: generateDate(),
   };
 };
 
