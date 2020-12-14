@@ -1,6 +1,15 @@
 import {nanoid} from "nanoid";
+import dayjs from "dayjs";
 import {getRandomInteger, makeTitleCase} from "./../utils/common";
 import {MINOR_TITLE_WORDS} from "./../const";
+
+const DatesDraft = {
+  YEAR: {
+    FILM: [dayjs().year(), 1900],
+    COMMENT: [dayjs().year(), 2018],
+  },
+  MONTH: [11, 0],
+};
 
 const Film = {
   TITLES: [`made for each other`, `popeye meets sinbad`, `sagebrush trail`, `santa claus conquers the martians`, `the dance of life`, `the great flamarion`, `the man with the golden arm`],
@@ -23,8 +32,10 @@ const Comment = {
   MESSAGES: [`Interesting setting and a good cast`, `Booooooooooring`, `Very very old. Meh`, `Almost two hours? Seriously?`, `Not so bad`],
   EMOJIS: [`smile`, `sleeping`, `puke`, `angry`],
   AUTHORS: [`John Doe`, `Doe John`, `John John`, `Doe Doe`, `John John Doe`],
-  DATES: [`2013/12/31 23:59`, `2010/10/01 10:10`, `2005/05/15 15:55`, `2020/09/29 22:09`, `2000/01/01 00:01`,
-  ],
+  DATE: {
+    YEAR: [dayjs().year(), 2019],
+    MONTH: [11, 0],
+  }
 };
 
 const generateTitle = ({TITLES: titles}) => {
@@ -63,17 +74,32 @@ const generateDescription = ({
   return randomSentences.join(` `);
 };
 
+const generateFilmDate = () => {
+  const randomYear = getRandomInteger(...DatesDraft.YEAR.FILM);
+  const randomMonth = getRandomInteger(...DatesDraft.MONTH);
+  const randomDay = getRandomInteger(dayjs(randomMonth).daysInMonth(), 1);
+
+  return dayjs(new Date(randomYear, randomMonth, randomDay));
+};
+
+const generateCommentDate = () => {
+  const randomYear = getRandomInteger(...DatesDraft.YEAR.COMMENT);
+  const randomMonth = getRandomInteger(...DatesDraft.MONTH);
+  const randomDay = getRandomInteger(dayjs(randomMonth).daysInMonth(), 1);
+
+  return dayjs(new Date(randomYear, randomMonth, randomDay));
+};
+
 const createComment = ({
   MESSAGES: messages,
   EMOJIS: emojis,
   AUTHORS: authors,
-  DATES: dates,
 }) => {
   return {
     message: messages[getRandomInteger(messages.length - 1)],
     emoji: emojis[getRandomInteger(emojis.length - 1)],
     author: authors[getRandomInteger(authors.length - 1)],
-    date: dates[getRandomInteger(dates.length - 1)],
+    date: generateCommentDate(),
   };
 };
 
@@ -89,6 +115,7 @@ export const generateFilm = () => {
     title,
     poster: generatePoster(title, Film),
     description: generateDescription(Film),
+    date: generateFilmDate(),
     comments: generateComments(Comment),
     rating: getRandomInteger(Film.RATING.MAX),
     inWatchListCollection: !!getRandomInteger(1),

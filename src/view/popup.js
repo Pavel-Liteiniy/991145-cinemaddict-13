@@ -1,5 +1,9 @@
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import AbstractView from "./abstract";
 import {FilmsCollection} from "../const";
+
+dayjs.extend(relativeTime);
 
 const createComments = (comments) => {
   let commentsList = [];
@@ -13,7 +17,7 @@ const createComments = (comments) => {
       <p class="film-details__comment-text">${message}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${author}</span>
-        <span class="film-details__comment-day">${date}</span>
+        <span class="film-details__comment-day">${dayjs(date).fromNow()}</span>
         <button class="film-details__comment-delete">Delete</button>
       </p>
     </div>
@@ -23,7 +27,7 @@ const createComments = (comments) => {
   return commentsList;
 };
 
-const createPopup = ({title, poster, description, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
+const createPopup = ({title, poster, description, date, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -64,7 +68,7 @@ const createPopup = ({title, poster, description, comments, rating, inWatchListC
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">30 March 1945</td>
+              <td class="film-details__cell">${dayjs(date).format(`D MMMM YYYY`)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
