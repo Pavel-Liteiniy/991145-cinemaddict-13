@@ -43,6 +43,10 @@ export default class Movie {
   }
 
   _movieCardClickHandler() {
+    if (this._popupComponent.getFilm() === this._film) {
+      return;
+    }
+
     if (this._popupComponent.getFilm() !== null) {
       this._popupComponent.removeEscKeyDownHandler();
       remove(this._popupComponent);
