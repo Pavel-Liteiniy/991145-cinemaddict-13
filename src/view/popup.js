@@ -1,9 +1,12 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import AbstractView from "./abstract";
+import SmartView from "./smart";
 import {FilmsCollection} from "../const";
 
 dayjs.extend(relativeTime);
+
+const KEY_ESCAPE = `Escape`;
+const KEY_ESC = `Esc`;
 
 const createComments = (comments) => {
   let commentsList = [];
@@ -146,7 +149,7 @@ const createPopup = ({title, poster, description, date, comments, rating, inWatc
 </section>`;
 };
 
-export default class Popup extends AbstractView {
+export default class Popup extends SmartView {
   constructor() {
     super();
     this._film = null;
@@ -155,6 +158,7 @@ export default class Popup extends AbstractView {
 
     this._clickHandler = this._clickHandler.bind(this);
     this._clickButtonHandler = this._clickButtonHandler.bind(this);
+    this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
   setFilm(film) {
@@ -203,6 +207,23 @@ export default class Popup extends AbstractView {
       }
 
       this._callback.clickButton(this._film);
+    }
+  }
+
+  setEscKeyDownHandler(callback) {
+    this._callback.escKeyDown = callback;
+
+    document.addEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  removeEscKeyDownHandler() {
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  _escKeyDownHandler(evt) {
+    if (evt.key === KEY_ESCAPE || evt.key === KEY_ESC) {
+      evt.preventDefault();
+      this._callback.escKeyDown();
     }
   }
 }
