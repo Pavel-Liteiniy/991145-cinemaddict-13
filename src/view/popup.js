@@ -161,6 +161,10 @@ export default class Popup extends AbstractView {
     this._film = film;
   }
 
+  getFilm() {
+    return this._film;
+  }
+
   getTemplate() {
     return createPopup(this._film);
   }

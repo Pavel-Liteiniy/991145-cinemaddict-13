@@ -46,6 +46,10 @@ export default class Movie {
   }
 
   _movieCardClickHandler() {
+    if (this._popupComponent.getFilm() !== null) {
+      remove(this._popupComponent);
+    }
+
     this._popupComponent.setFilm(this._film);
     this._popupComponent.setClickHandler(this._popupClickHandler);
     this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
