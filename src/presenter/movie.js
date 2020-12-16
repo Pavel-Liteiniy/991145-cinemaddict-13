@@ -47,7 +47,7 @@ export default class Movie {
       return;
     }
 
-    if (this._popupComponent.getFilm() !== null) {
+    if (Object.keys(this._popupComponent.getFilm()).length !== 0) {
       this._popupComponent.removeEscKeyDownHandler();
       remove(this._popupComponent);
       this._bodyElement.classList.remove(`hide-overflow`);
