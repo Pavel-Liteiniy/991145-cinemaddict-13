@@ -8,6 +8,29 @@ dayjs.extend(relativeTime);
 const KEY_ESCAPE = `Escape`;
 const KEY_ESC = `Esc`;
 
+const Emoji = {
+  SMILE: {
+    VALUE: `smile`,
+    URL: `./images/emoji/smile.png`,
+    ALT: `emoji-smile`,
+  },
+  SLEEPING: {
+    VALUE: `sleeping`,
+    URL: `./images/emoji/sleeping.png`,
+    ALT: `emoji-sleeping`,
+  },
+  PUKE: {
+    VALUE: `puke`,
+    URL: `./images/emoji/puke.png`,
+    ALT: `emoji-puke`,
+  },
+  ANGRY: {
+    VALUE: `angry`,
+    URL: `./images/emoji/angry.png`,
+    ALT: `emoji-angry`,
+  },
+};
+
 const createComments = (comments) => {
   let commentsList = [];
 
@@ -30,7 +53,11 @@ const createComments = (comments) => {
   return commentsList;
 };
 
-const createPopup = ({title, poster, description, date, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
+const createEmojiImage = ({VALUE: value, URL: url, ALT: alt}) => {
+  return value ? `<img src="${url}" width="50" height="50" alt="${alt}">` : ``;
+};
+
+const createPopup = ({title, poster, description, date, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection, emojiSelected = {}}) => {
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -40,7 +67,6 @@ const createPopup = ({title, poster, description, date, comments, rating, inWatc
       <div class="film-details__info-wrap">
         <div class="film-details__poster">
           <img class="film-details__poster-img" src="./images/posters/${poster}" alt="${title}">
-
           <p class="film-details__age">18+</p>
         </div>
 
@@ -115,7 +141,9 @@ const createPopup = ({title, poster, description, date, comments, rating, inWatc
         <ul class="film-details__comments-list">${createComments(comments).join(``)}</ul>
 
         <div class="film-details__new-comment">
-          <div class="film-details__add-emoji-label"></div>
+          <div class="film-details__add-emoji-label">
+            ${createEmojiImage(emojiSelected)}
+          </div>
 
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
@@ -152,25 +180,24 @@ const createPopup = ({title, poster, description, date, comments, rating, inWatc
 export default class Popup extends SmartView {
   constructor() {
     super();
-    this._film = null;
-
-    this._filmsCollection = FilmsCollection;
 
     this._clickHandler = this._clickHandler.bind(this);
     this._clickButtonHandler = this._clickButtonHandler.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
+    this._changeEmojiHandler = this._changeEmojiHandler.bind(this);
   }
 
   setFilm(film) {
-    this._film = film;
+    this._data = film;
+    this._setInnerHandlers();
   }
 
   getFilm() {
-    return this._film;
+    return this._data;
   }
 
   getTemplate() {
-    return createPopup(this._film);
+    return createPopup(this._data);
   }
 
   setClickHandler(callback) {
@@ -195,18 +222,18 @@ export default class Popup extends SmartView {
       evt.preventDefault();
 
       switch (evt.target.dataset.filmsCollection) {
-        case this._filmsCollection.WATCH_LIST:
-          this._film.inWatchListCollection = !this._film.inWatchListCollection;
+        case FilmsCollection.WATCH_LIST:
+          this._data.inWatchListCollection = !this._data.inWatchListCollection;
           break;
-        case this._filmsCollection.WATCHED:
-          this._film.inWatchedCollection = !this._film.inWatchedCollection;
+        case FilmsCollection.WATCHED:
+          this._data.inWatchedCollection = !this._data.inWatchedCollection;
           break;
-        case this._filmsCollection.FAVORITE:
-          this._film.inFavoriteCollection = !this._film.inFavoriteCollection;
+        case FilmsCollection.FAVORITE:
+          this._data.inFavoriteCollection = !this._data.inFavoriteCollection;
           break;
       }
 
-      this._callback.clickButton(this._film);
+      this._callback.clickButton(this._data);
     }
   }
 
@@ -224,6 +251,50 @@ export default class Popup extends SmartView {
     if (evt.key === KEY_ESCAPE || evt.key === KEY_ESC) {
       evt.preventDefault();
       this._callback.escKeyDown();
+    }
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+
+    this.setClickHandler(this._callback.click);
+    this.setClickButtonHandler(this._callback.clickButton);
+    this.setEscKeyDownHandler(this._callback.escKeyDown);
+  }
+
+  _setInnerHandlers() {
+    if (Object.keys(this._data).length !== 0) {
+      this.getElement().querySelector(`.film-details__emoji-list`).addEventListener(`change`, this._changeEmojiHandler);
+    }
+  }
+
+  _changeEmojiHandler(evt) {
+    if (evt.target.classList.contains(`film-details__emoji-item`)) {
+
+      if (`emojiSelected` in this._data) {
+        if (this._data.emojiSelected.VALUE === evt.target.value) {
+          return;
+        }
+      }
+
+      const PopupscrollTop = this.getElement().scrollTop;
+
+      switch (evt.target.value) {
+        case Emoji.SMILE.VALUE:
+          this.updateData({emojiSelected: Emoji.SMILE});
+          break;
+        case Emoji.SLEEPING.VALUE:
+          this.updateData({emojiSelected: Emoji.SLEEPING});
+          break;
+        case Emoji.PUKE.VALUE:
+          this.updateData({emojiSelected: Emoji.PUKE});
+          break;
+        case Emoji.ANGRY.VALUE:
+          this.updateData({emojiSelected: Emoji.ANGRY});
+          break;
+      }
+
+      this.getElement().scrollTop = PopupscrollTop;
     }
   }
 }
