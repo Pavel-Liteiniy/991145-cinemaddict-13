@@ -57,7 +57,7 @@ const createEmojiImage = ({VALUE: value, URL: url, ALT: alt}) => {
   return value ? `<img src="${url}" width="50" height="50" alt="${alt}">` : ``;
 };
 
-const createPopup = ({title, poster, description, date, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection, emojiSelected = {}}) => {
+const createPopup = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection, emojiSelected = {}}) => {
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -101,7 +101,7 @@ const createPopup = ({title, poster, description, date, comments, rating, inWatc
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">1h 18m</td>
+              <td class="film-details__cell">${dayjs().minute(duration).format(`h[h] m[m]`)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
