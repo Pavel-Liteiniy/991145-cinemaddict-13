@@ -1,9 +1,6 @@
 import {remove, render, replace} from "../utils/render";
 import MovieCardView from "../view/film-card";
 
-const KEY_ESCAPE = `Escape`;
-const KEY_ESC = `Esc`;
-
 export default class Movie {
   constructor(movieContainer, popupComponent, handleFilmChange) {
     this._bodyElement = document.querySelector(`body`);
@@ -46,14 +43,23 @@ export default class Movie {
   }
 
   _movieCardClickHandler() {
+    if (this._popupComponent.getFilm() === this._film) {
+      return;
+    }
+
+    if (Object.keys(this._popupComponent.getFilm()).length !== 0) {
+      this._popupComponent.removeEscKeyDownHandler();
+      remove(this._popupComponent);
+      this._bodyElement.classList.remove(`hide-overflow`);
+    }
+
     this._popupComponent.setFilm(this._film);
     this._popupComponent.setClickHandler(this._popupClickHandler);
     this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
-
-    document.addEventListener(`keydown`, this._popupEscKeyDownHandler);
-    this._bodyElement.classList.add(`hide-overflow`);
+    this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
 
     render(this._bodyElement, this._popupComponent);
+    this._bodyElement.classList.add(`hide-overflow`);
   }
 
   _movieCardClickButtonHandler(film) {
@@ -61,19 +67,16 @@ export default class Movie {
   }
 
   _popupClickHandler() {
-    document.removeEventListener(`keydown`, this._popupEscKeyDownHandler);
-    this._bodyElement.classList.remove(`hide-overflow`);
+    this._popupComponent.removeEscKeyDownHandler();
     remove(this._popupComponent);
+    this._bodyElement.classList.remove(`hide-overflow`);
   }
 
   _popupClickButtonHandler(film) {
     this._handleFilmChange(film);
   }
 
-  _popupEscKeyDownHandler(evt) {
-    if (evt.key === KEY_ESCAPE || evt.key === KEY_ESC) {
-      evt.preventDefault();
-      this._popupClickHandler();
-    }
+  _popupEscKeyDownHandler() {
+    this._popupClickHandler();
   }
 }

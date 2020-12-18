@@ -116,6 +116,7 @@ export const generateFilm = () => {
     poster: generatePoster(title, Film),
     description: generateDescription(Film),
     date: generateFilmDate(),
+    duration: getRandomInteger(190, 3),
     comments: generateComments(Comment),
     rating: getRandomInteger(Film.RATING.MAX),
     inWatchListCollection: !!getRandomInteger(1),
