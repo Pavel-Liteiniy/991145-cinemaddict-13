@@ -1,4 +1,5 @@
 import {remove, render, replace} from "../utils/render";
+import {UserAction} from "../const";
 import MovieCardView from "../view/film-card";
 
 export default class Movie {
@@ -43,7 +44,7 @@ export default class Movie {
   }
 
   _movieCardClickHandler() {
-    if (this._popupComponent.getFilm() === this._film) {
+    if (this._popupComponent.getFilm() === this._film && this._bodyElement.contains(this._popupComponent.getElement())) {
       return;
     }
 
@@ -63,7 +64,7 @@ export default class Movie {
   }
 
   _movieCardClickButtonHandler(film) {
-    this._handleFilmChange(film);
+    this._handleFilmChange(UserAction.UPDATE_MOVIE, film);
   }
 
   _popupClickHandler() {
@@ -73,7 +74,7 @@ export default class Movie {
   }
 
   _popupClickButtonHandler(film) {
-    this._handleFilmChange(film);
+    this._handleFilmChange(UserAction.UPDATE_MOVIE, film);
   }
 
   _popupEscKeyDownHandler() {
