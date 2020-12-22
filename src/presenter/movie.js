@@ -54,7 +54,7 @@ export default class Movie {
       this._bodyElement.classList.remove(`hide-overflow`);
     }
 
-    this._popupComponent.setFilm(this._film);
+    this._popupComponent.setFilm(Object.assign({}, this._film));
     this._popupComponent.setClickHandler(this._popupClickHandler);
     this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
     this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
