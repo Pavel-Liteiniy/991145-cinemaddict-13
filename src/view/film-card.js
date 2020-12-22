@@ -32,7 +32,7 @@ const createFilmCard = ({title, poster, description, date, duration, comments, r
 export default class MovieCard extends AbstractView {
   constructor(film) {
     super();
-    this._film = film;
+    this._film = Object.assign({}, film);
 
     this._filmsCollection = FilmsCollection;
 

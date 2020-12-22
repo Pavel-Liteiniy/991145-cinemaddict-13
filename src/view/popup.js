@@ -233,7 +233,7 @@ export default class Popup extends SmartView {
           break;
       }
 
-      this._callback.clickButton(this._data);
+      this._callback.clickButton(Object.assign({}, this._data));
     }
   }
 
