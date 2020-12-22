@@ -18,9 +18,7 @@ export const getNumberFormat = (value) => {
   return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ` `);
 };
 
-export const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
-
+export const updateItem = (items, update, index) => {
   if (index === -1) {
     return items;
   }
