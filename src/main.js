@@ -8,7 +8,7 @@ import MenuPresenter from "./presenter/menu";
 import MoviesModel from "./model/movies";
 import FilterModel from "./model/filter";
 
-const FILMS_NUMBER = 12;
+const FILMS_NUMBER = 20;
 const films = new Array(FILMS_NUMBER).fill().map(generateFilm);
 
 const moviesModel = new MoviesModel();

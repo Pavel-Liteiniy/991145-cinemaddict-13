@@ -44,7 +44,7 @@ const createComments = (comments) => {
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${author}</span>
         <span class="film-details__comment-day">${dayjs(date).fromNow()}</span>
-        <button class="film-details__comment-delete">Delete</button>
+        <button class="film-details__comment-delete" data-author="${author}">Delete</button>
       </p>
     </div>
   </li>`);
@@ -185,6 +185,7 @@ export default class Popup extends SmartView {
     this._clickButtonHandler = this._clickButtonHandler.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._changeEmojiHandler = this._changeEmojiHandler.bind(this);
+    this._clickDeleteCommentButtonHandler = this._clickDeleteCommentButtonHandler.bind(this);
   }
 
   setFilm(film) {
@@ -200,6 +201,10 @@ export default class Popup extends SmartView {
     return createPopup(this._data);
   }
 
+  updateScrollTop() {
+    this.getElement().scrollTop = this._scrollTop;
+  }
+
   setClickHandler(callback) {
     this._callback.click = callback;
 
@@ -209,6 +214,25 @@ export default class Popup extends SmartView {
   _clickHandler(evt) {
     evt.preventDefault();
     this._callback.click();
+  }
+
+  setClickDeleteCommentButtonHandler(callback) {
+    this._callback.clickDeleteCommentButton = callback;
+    this.getElement().querySelector(`.film-details__comments-list`).addEventListener(`click`, this._clickDeleteCommentButtonHandler);
+  }
+
+  _clickDeleteCommentButtonHandler(evt) {
+    if (evt.target.classList.contains(`film-details__comment-delete`)) {
+      evt.preventDefault();
+
+      const commentIndex = this._data.comments.findIndex((comment) => {
+        return comment.author === evt.target.dataset.author;
+      });
+
+      this._data.comments.splice(commentIndex, 1);
+      this._scrollTop = this.getElement().scrollTop;
+      this._callback.clickDeleteCommentButton(this._data);
+    }
   }
 
   setClickButtonHandler(callback) {
@@ -233,7 +257,7 @@ export default class Popup extends SmartView {
           break;
       }
 
-      this._callback.clickButton(Object.assign({}, this._data));
+      this._callback.clickButton(this._data);
     }
   }
 
@@ -258,6 +282,7 @@ export default class Popup extends SmartView {
     this._setInnerHandlers();
 
     this.setClickHandler(this._callback.click);
+    this.setClickDeleteCommentButtonHandler(this._callback.clickDeleteCommentButton);
     this.setClickButtonHandler(this._callback.clickButton);
     this.setEscKeyDownHandler(this._callback.escKeyDown);
   }
@@ -277,7 +302,7 @@ export default class Popup extends SmartView {
         }
       }
 
-      const PopupscrollTop = this.getElement().scrollTop;
+      this._scrollTop = this.getElement().scrollTop;
 
       switch (evt.target.value) {
         case Emoji.SMILE.VALUE:
@@ -294,7 +319,7 @@ export default class Popup extends SmartView {
           break;
       }
 
-      this.getElement().scrollTop = PopupscrollTop;
+      this.updateScrollTop();
     }
   }
 }

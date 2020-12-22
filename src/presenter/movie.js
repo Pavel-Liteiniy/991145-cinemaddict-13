@@ -16,6 +16,7 @@ export default class Movie {
     this._popupEscKeyDownHandler = this._popupEscKeyDownHandler.bind(this);
     this._popupClickHandler = this._popupClickHandler.bind(this);
     this._popupClickButtonHandler = this._popupClickButtonHandler.bind(this);
+    this._popupClickDeleteCommentButtonHandler = this._popupClickDeleteCommentButtonHandler.bind(this);
   }
 
   init(film) {
@@ -57,6 +58,7 @@ export default class Movie {
     this._popupComponent.setFilm(Object.assign({}, this._film));
     this._popupComponent.setClickHandler(this._popupClickHandler);
     this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
+    this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
     this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
 
     render(this._bodyElement, this._popupComponent);
@@ -75,6 +77,12 @@ export default class Movie {
 
   _popupClickButtonHandler(film) {
     this._handleFilmChange(UserAction.UPDATE_MOVIE, film);
+  }
+
+  _popupClickDeleteCommentButtonHandler(film) {
+    this._popupComponent.updateData(film);
+    this._popupComponent.updateScrollTop();
+    this._handleFilmChange(UserAction.DELETE_COMMENT, film);
   }
 
   _popupEscKeyDownHandler() {

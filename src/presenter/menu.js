@@ -36,8 +36,13 @@ export default class Menu {
     remove(prevMenuComponent);
   }
 
-  _handleModelEvent() {
-    this.init();
+  _handleModelEvent(updateType) {
+    switch (updateType) {
+      case UpdateType.MAJOR:
+      case UpdateType.MINOR:
+        this.init();
+        break;
+    }
   }
 
   _handleFilterChange(filterSelected) {

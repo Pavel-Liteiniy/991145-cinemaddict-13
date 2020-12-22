@@ -134,8 +134,8 @@ export default class MovieList {
   }
 
   _renderMovieListsExtra() {
-    this._createExtraFilmsElement(this._getMovies(), this._typeExtraFilms.TOP_RATED);
-    this._createExtraFilmsElement(this._getMovies(), this._typeExtraFilms.MOST_COMMENTED);
+    this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.TOP_RATED);
+    this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.MOST_COMMENTED);
   }
 
   _renderFilmCardElements(container, movies) {
@@ -216,11 +216,25 @@ export default class MovieList {
       case UserAction.UPDATE_MOVIE:
         this._moviesModel.updateMovie(UpdateType.MINOR, update);
         break;
+      case UserAction.DELETE_COMMENT:
+        this._moviesModel.updateMovie(UpdateType.PATCH, update);
+        break;
     }
+
   }
 
   _handleModelEvent(updateType, data) {
     switch (updateType) {
+      case UpdateType.PATCH:
+        if (this._allMoviesPresenters.has(data.id)) {
+          this._allMoviesPresenters.get(data.id).init(data);
+        }
+        this._clearMostCommentedMoviesList();
+        this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.MOST_COMMENTED);
+        if (this._topRatedMoviesPresenters.has(data.id)) {
+          this._topRatedMoviesPresenters.get(data.id).init(data);
+        }
+        break;
       case UpdateType.MINOR:
         this._clearAllMoviesList();
         this._renderMoviesListAll();
@@ -257,5 +271,11 @@ export default class MovieList {
     this._allMoviesPresenters.forEach((presenter) => presenter.destroy());
     this._allMoviesPresenters.clear();
     remove(this._showButtonComponent);
+  }
+
+  _clearMostCommentedMoviesList() {
+    this._mostCommentedMoviesPresenters.forEach((presenter) => presenter.destroy());
+    this._mostCommentedMoviesPresenters.clear();
+    this._filmsWrapperComponent.getElement().lastChild.remove();
   }
 }
