@@ -7,6 +7,7 @@ dayjs.extend(relativeTime);
 
 const KEY_ESCAPE = `Escape`;
 const KEY_ESC = `Esc`;
+const KEY_ENTER = `Enter`;
 
 const Emoji = {
   SMILE: {
@@ -53,11 +54,11 @@ const createComments = (comments) => {
   return commentsList;
 };
 
-const createEmojiImage = ({VALUE: value, URL: url, ALT: alt}) => {
+const createEmojiImage = ({VALUE: value = ``, URL: url = ``, ALT: alt = ``}) => {
   return value ? `<img src="${url}" width="50" height="50" alt="${alt}">` : ``;
 };
 
-const createPopup = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection, emojiSelected = {}}) => {
+const createPopup = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}, emojiSelected = {}) => {
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -180,12 +181,14 @@ const createPopup = ({title, poster, description, date, duration, comments, rati
 export default class Popup extends SmartView {
   constructor() {
     super();
+    this._emojiSelected = {};
 
     this._clickHandler = this._clickHandler.bind(this);
     this._clickButtonHandler = this._clickButtonHandler.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._changeEmojiHandler = this._changeEmojiHandler.bind(this);
     this._clickDeleteCommentButtonHandler = this._clickDeleteCommentButtonHandler.bind(this);
+    this._submitCommentHandler = this._submitCommentHandler.bind(this);
   }
 
   setFilm(film) {
@@ -198,7 +201,7 @@ export default class Popup extends SmartView {
   }
 
   getTemplate() {
-    return createPopup(this._data);
+    return createPopup(this._data, this._emojiSelected);
   }
 
   updateScrollTop() {
@@ -213,6 +216,7 @@ export default class Popup extends SmartView {
 
   _clickHandler(evt) {
     evt.preventDefault();
+    this._emojiSelected = {};
     this._callback.click();
   }
 
@@ -224,6 +228,7 @@ export default class Popup extends SmartView {
   _clickDeleteCommentButtonHandler(evt) {
     if (evt.target.classList.contains(`film-details__comment-delete`)) {
       evt.preventDefault();
+      debugger
 
       const commentIndex = this._data.comments.findIndex((comment) => {
         return comment.author === evt.target.dataset.author;
@@ -274,7 +279,34 @@ export default class Popup extends SmartView {
   _escKeyDownHandler(evt) {
     if (evt.key === KEY_ESCAPE || evt.key === KEY_ESC) {
       evt.preventDefault();
+      this._emojiSelected = {};
       this._callback.escKeyDown();
+    }
+  }
+
+  setSubmitCommentHandler(callback) {
+    this._callback.submitComment = callback;
+    document.addEventListener(`keydown`, this._submitCommentHandler);
+  }
+
+  removeSubmitCommentHandler() {
+    document.removeEventListener(`keydown`, this._submitCommentHandler);
+  }
+
+  _submitCommentHandler(evt) {
+    const message = this.getElement().querySelector(`.film-details__comment-input`).value
+    const emoji = this._emojiSelected.VALUE
+    if (evt.ctrlKey && evt.key === KEY_ENTER && message && emoji) {
+      evt.preventDefault();
+      this._scrollTop = this.getElement().scrollTop;
+      this._data.comments.push({
+        message,
+        emoji,
+        author: `author`,
+        date: dayjs()
+      });
+      this._emojiSelected = {};
+      this._callback.submitComment(this._data);
     }
   }
 
@@ -283,6 +315,7 @@ export default class Popup extends SmartView {
 
     this.setClickHandler(this._callback.click);
     this.setClickDeleteCommentButtonHandler(this._callback.clickDeleteCommentButton);
+    this.setSubmitCommentHandler(this._callback.submitComment);
     this.setClickButtonHandler(this._callback.clickButton);
     this.setEscKeyDownHandler(this._callback.escKeyDown);
   }
@@ -296,29 +329,30 @@ export default class Popup extends SmartView {
   _changeEmojiHandler(evt) {
     if (evt.target.classList.contains(`film-details__emoji-item`)) {
 
-      if (`emojiSelected` in this._data) {
-        if (this._data.emojiSelected.VALUE === evt.target.value) {
-          return;
-        }
+      if (this.emojiSelected === evt.target.value) {
+        return;
       }
 
       this._scrollTop = this.getElement().scrollTop;
 
       switch (evt.target.value) {
         case Emoji.SMILE.VALUE:
-          this.updateData({emojiSelected: Emoji.SMILE});
+          this._emojiSelected = Emoji.SMILE;
           break;
         case Emoji.SLEEPING.VALUE:
-          this.updateData({emojiSelected: Emoji.SLEEPING});
+          this._emojiSelected = Emoji.SLEEPING;
           break;
         case Emoji.PUKE.VALUE:
-          this.updateData({emojiSelected: Emoji.PUKE});
+          this._emojiSelected = Emoji.PUKE;
           break;
         case Emoji.ANGRY.VALUE:
-          this.updateData({emojiSelected: Emoji.ANGRY});
+          this._emojiSelected = Emoji.ANGRY;
           break;
       }
 
+      const message = this.getElement().querySelector(`.film-details__comment-input`).value;
+      this.updateElement();
+      this.getElement().querySelector(`.film-details__comment-input`).value = message;
       this.updateScrollTop();
     }
   }

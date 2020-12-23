@@ -216,6 +216,7 @@ export default class MovieList {
       case UserAction.UPDATE_MOVIE:
         this._moviesModel.updateMovie(UpdateType.MINOR, update);
         break;
+      case UserAction.ADD_COMMENT:
       case UserAction.DELETE_COMMENT:
         this._moviesModel.updateMovie(UpdateType.PATCH, update);
         break;

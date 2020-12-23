@@ -16,6 +16,7 @@ export default class Movie {
     this._popupEscKeyDownHandler = this._popupEscKeyDownHandler.bind(this);
     this._popupClickHandler = this._popupClickHandler.bind(this);
     this._popupClickButtonHandler = this._popupClickButtonHandler.bind(this);
+    this._popupSubmitCommentHandler = this._popupSubmitCommentHandler.bind(this);
     this._popupClickDeleteCommentButtonHandler = this._popupClickDeleteCommentButtonHandler.bind(this);
   }
 
@@ -58,6 +59,7 @@ export default class Movie {
     this._popupComponent.setFilm(Object.assign({}, this._film));
     this._popupComponent.setClickHandler(this._popupClickHandler);
     this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
+    this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
     this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
     this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
 
@@ -71,12 +73,19 @@ export default class Movie {
 
   _popupClickHandler() {
     this._popupComponent.removeEscKeyDownHandler();
+    this._popupComponent.removeSubmitCommentHandler();
     remove(this._popupComponent);
     this._bodyElement.classList.remove(`hide-overflow`);
   }
 
   _popupClickButtonHandler(film) {
     this._handleFilmChange(UserAction.UPDATE_MOVIE, film);
+  }
+
+  _popupSubmitCommentHandler(film) {
+    this._popupComponent.updateData(film);
+    this._popupComponent.updateScrollTop();
+    this._handleFilmChange(UserAction.ADD_COMMENT, film);
   }
 
   _popupClickDeleteCommentButtonHandler(film) {
