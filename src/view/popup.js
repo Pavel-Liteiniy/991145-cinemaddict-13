@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import he from "he";
 import relativeTime from "dayjs/plugin/relativeTime";
 import SmartView from "./smart";
 import {FilmsCollection} from "../const";
@@ -41,7 +42,7 @@ const createComments = (comments) => {
       <img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">
     </span>
     <div>
-      <p class="film-details__comment-text">${message}</p>
+      <p class="film-details__comment-text">${he.encode(message)}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${author}</span>
         <span class="film-details__comment-day">${dayjs(date).fromNow()}</span>
@@ -228,7 +229,6 @@ export default class Popup extends SmartView {
   _clickDeleteCommentButtonHandler(evt) {
     if (evt.target.classList.contains(`film-details__comment-delete`)) {
       evt.preventDefault();
-      debugger
 
       const commentIndex = this._data.comments.findIndex((comment) => {
         return comment.author === evt.target.dataset.author;
@@ -294,8 +294,8 @@ export default class Popup extends SmartView {
   }
 
   _submitCommentHandler(evt) {
-    const message = this.getElement().querySelector(`.film-details__comment-input`).value
-    const emoji = this._emojiSelected.VALUE
+    const message = this.getElement().querySelector(`.film-details__comment-input`).value;
+    const emoji = this._emojiSelected.VALUE;
     if (evt.ctrlKey && evt.key === KEY_ENTER && message && emoji) {
       evt.preventDefault();
       this._scrollTop = this.getElement().scrollTop;
