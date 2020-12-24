@@ -2,17 +2,17 @@ import {getNumberFormat} from "../utils/common";
 import AbstractView from "./abstract";
 
 
-const createMoviesStatistic = (films) => {
+const createMoviesSummary = (films) => {
   return `<p>${getNumberFormat(films.length)} movies inside</p>`;
 };
 
-export default class MoviesStatistic extends AbstractView {
+export default class MoviesSummary extends AbstractView {
   constructor(films) {
     super();
     this._films = films;
   }
 
   getTemplate() {
-    return createMoviesStatistic(this._films);
+    return createMoviesSummary(this._films);
   }
 }

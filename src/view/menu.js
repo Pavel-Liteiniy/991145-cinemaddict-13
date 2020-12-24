@@ -9,7 +9,7 @@ const createMenu = ({watchlist = 0, history = 0, favorites = 0}, filterSelected 
     <a href="#history" class="main-navigation__item${filterSelected === FilterType.HISTORY ? ` main-navigation__item--active` : ``}" data-filter="${FilterType.HISTORY}">History <span class="main-navigation__item-count">${history}</span></a>
     <a href="#favorites" class="main-navigation__item${filterSelected === FilterType.FAVORITES ? ` main-navigation__item--active` : ``}" data-filter="${FilterType.FAVORITES}">Favorites <span class="main-navigation__item-count">${favorites}</span></a>
   </div>
-  <a href="#stats" class="main-navigation__additional">Stats</a>
+  <a href="#stats" class="main-navigation__additional${filterSelected === FilterType.DISABLED ? ` main-navigation__additional--active` : ``}"  data-filter="${FilterType.DISABLED}">Stats</a>
 </nav>`;
 };
 
@@ -20,7 +20,7 @@ export default class Menu extends AbstractView {
     this._filterSelected = null;
     this._movieCountInCollection = {};
 
-    this._clickFilterHandler = this._clickFilterHandler.bind(this);
+    this._clickMenuHandler = this._clickMenuHandler.bind(this);
   }
 
   getTemplate() {
@@ -35,15 +35,15 @@ export default class Menu extends AbstractView {
     this._filterSelected = activeFilter;
   }
 
-  setClickFilterHandler(callback) {
+  setClickMenuHandler(callback) {
     this._callback.clickFilter = callback;
 
-    this.getElement().querySelector(`.main-navigation__items`).addEventListener(`click`, this._clickFilterHandler);
+    this.getElement().addEventListener(`click`, this._clickMenuHandler);
   }
 
-  _clickFilterHandler(evt) {
-    if (evt.target.classList.contains(`main-navigation__item`)) {
-      this._callback.clickFilter(evt.target.dataset.filter);
-    }
+  _clickMenuHandler(evt) {
+    evt.preventDefault();
+
+    this._callback.clickFilter(evt.target.dataset.filter);
   }
 }

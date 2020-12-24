@@ -22,7 +22,7 @@ export default class Menu {
     this._menuComponent = new MenuView();
     this._menuComponent.setMovieCountInCollection(this._moviesModel.getMovieCountInCollection());
     this._menuComponent.setActiveFilter(this._filterModel.getFilter());
-    this._menuComponent.setClickFilterHandler(this._handleFilterChange);
+    this._menuComponent.setClickMenuHandler(this._handleFilterChange);
 
     if (prevMenuComponent === null) {
       render(this._menuContainer, this._menuComponent);
@@ -40,6 +40,7 @@ export default class Menu {
     switch (updateType) {
       case UpdateType.MAJOR:
       case UpdateType.MINOR:
+      case UpdateType.STATS:
         this.init();
         break;
     }

@@ -28,7 +28,8 @@ export const UserAction = {
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
-  MAJOR: `MAJOR`
+  MAJOR: `MAJOR`,
+  STATS: `STATS`,
 };
 
 export const FilterType = {
@@ -36,4 +37,5 @@ export const FilterType = {
   WATCHLIST: `watchlist`,
   HISTORY: `history`,
   FAVORITES: `favorites`,
+  DISABLED: ``,
 };

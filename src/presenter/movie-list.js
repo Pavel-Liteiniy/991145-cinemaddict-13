@@ -44,12 +44,11 @@ export default class MovieList {
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
-    this._moviesModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
   }
 
   init() {
+    this._moviesModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
 
     this._moviesSortComponent.updateData({sortTypeSelected: this._sortTypeSelected}, true);
     this._moviesSortComponent.setClickHandler(this._handleSortTypeChange);
@@ -61,6 +60,19 @@ export default class MovieList {
 
     render(this._filmsWrapperComponent, this._filmsCatalogComponent);
     this._renderMovieListsExtra();
+  }
+
+  destroy() {
+    this._moviesModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+
+    this._clearAllMoviesList();
+    this._clearTopRatedMoviesList();
+    this._clearMostCommentedMoviesList();
+
+    remove(this._moviesSortComponent);
+    remove(this._filmsCatalogComponent);
+    remove(this._filmsWrapperComponent);
   }
 
   _getMovies() {
@@ -248,12 +260,26 @@ export default class MovieList {
         }
         break;
       case UpdateType.MAJOR:
+        if (data === FilterType.DISABLED) {
+          break;
+        }
+
         this._filterSelected = data;
         this._sortTypeSelected = SortType.BY_DEFAULT;
         this._moviesSortComponent.updateData({sortTypeSelected: this._sortTypeSelected});
         this._clearAllMoviesList();
         this._renderedFilms = this._cardsCount;
         this._renderMoviesListAll();
+        break;
+      case UpdateType.STATS:
+        if (data === FilterType.DISABLED) {
+          this._filterSelected = data;
+          this._sortTypeSelected = SortType.BY_DEFAULT;
+          this._renderedFilms = this._cardsCount;
+          this.destroy();
+        } else {
+          this.init();
+        }
         break;
     }
   }
@@ -277,6 +303,12 @@ export default class MovieList {
   _clearMostCommentedMoviesList() {
     this._mostCommentedMoviesPresenters.forEach((presenter) => presenter.destroy());
     this._mostCommentedMoviesPresenters.clear();
+    this._filmsWrapperComponent.getElement().lastChild.remove();
+  }
+
+  _clearTopRatedMoviesList() {
+    this._topRatedMoviesPresenters.forEach((presenter) => presenter.destroy());
+    this._topRatedMoviesPresenters.clear();
     this._filmsWrapperComponent.getElement().lastChild.remove();
   }
 }

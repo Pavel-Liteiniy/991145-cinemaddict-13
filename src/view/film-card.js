@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
+import durationDayjs from "dayjs/plugin/duration";
 import AbstractView from "./abstract";
 import {FilmsCollection} from "../const";
+
+dayjs.extend(durationDayjs);
 
 const DESCRIPTION_MAX_LENGTH = 140;
 const DESCRIPTION_LAST_ITEM = `...`;
@@ -10,12 +13,15 @@ const getCheckedDescription = (description) => {
 };
 
 const createFilmCard = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
+  const durationHours = dayjs.duration(duration, `minutes`).hours();
+  const durationMinutes = dayjs.duration(duration, `minutes`).minutes();
+
   return `<article class="film-card">
   <h3 class="film-card__title">${title}</h3>
   <p class="film-card__rating">${Math.trunc(rating / 10)}.${rating % 10}</p>
   <p class="film-card__info">
     <span class="film-card__year">${dayjs(date).year()}</span>
-    <span class="film-card__duration">${dayjs().minute(duration).format(`h[h] m[m]`)}</span>
+    <span class="film-card__duration">${durationHours ? durationHours + `h ` : ``}${durationMinutes}m</span>
     <span class="film-card__genre">Cartoon</span>
   </p>
   <img src="./images/posters/${poster}" alt="${title}" class="film-card__poster">

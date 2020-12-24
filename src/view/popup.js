@@ -1,10 +1,12 @@
 import dayjs from "dayjs";
-import he from "he";
 import relativeTime from "dayjs/plugin/relativeTime";
+import durationDayjs from "dayjs/plugin/duration";
+import he from "he";
 import SmartView from "./smart";
 import {FilmsCollection} from "../const";
 
 dayjs.extend(relativeTime);
+dayjs.extend(durationDayjs);
 
 const KEY_ESCAPE = `Escape`;
 const KEY_ESC = `Esc`;
@@ -60,6 +62,9 @@ const createEmojiImage = ({VALUE: value = ``, URL: url = ``, ALT: alt = ``}) => 
 };
 
 const createPopup = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}, emojiSelected = {}) => {
+  const durationHours = dayjs.duration(duration, `minutes`).hours();
+  const durationMinutes = dayjs.duration(duration, `minutes`).minutes();
+
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -103,7 +108,7 @@ const createPopup = ({title, poster, description, date, duration, comments, rati
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">${dayjs().minute(duration).format(`h[h] m[m]`)}</td>
+              <td class="film-details__cell">${durationHours ? durationHours + `h ` : ``}${durationMinutes}m</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
