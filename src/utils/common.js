@@ -1,3 +1,5 @@
+import {USER_RANK} from "../const";
+
 export const getRandomInteger = (max, min = 0) => {
   return Math.floor(min + Math.random() * (max + 1 - min));
 };
@@ -28,4 +30,17 @@ export const updateItem = (items, update, index) => {
     update,
     ...items.slice(index + 1)
   ];
+};
+
+export const getRank = (watchedFilmsCount) => {
+  let userRank = false;
+
+  for (let [range, rank] of USER_RANK) {
+    if (watchedFilmsCount >= range[0] && watchedFilmsCount <= range[1]) {
+      userRank = rank;
+      break;
+    }
+  }
+
+  return userRank;
 };
