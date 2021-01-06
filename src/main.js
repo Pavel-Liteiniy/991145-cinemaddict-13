@@ -4,7 +4,6 @@ import UserRankView from "./view/user-rank";
 import StatisticView from "./view/statistic";
 import MoviesSummaryView from "./view/movies-statistic";
 import {generateFilm} from "./mock/film";
-import {generateUser} from "./mock/user";
 import MovieListPresenter from "./presenter/movie-list";
 import MenuPresenter from "./presenter/menu";
 import MoviesModel from "./model/movies";
@@ -41,12 +40,10 @@ const handleUserRankChange = () => {
   userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
   remove(userRankComponent);
   render(siteHeaderElement, userRankComponent);
-}
+};
 
 filterModel.addObserver(handleMenuItemChange);
 moviesModel.addObserver(handleUserRankChange);
-
-const user = generateUser();
 
 const siteBodyElement = document.querySelector(`body`);
 const siteHeaderElement = siteBodyElement.querySelector(`.header`);

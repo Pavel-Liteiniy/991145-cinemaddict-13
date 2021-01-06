@@ -3,7 +3,7 @@ import duration from "dayjs/plugin/duration";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import dayOfYear from "dayjs/plugin/dayOfYear";
 import Chart from "chart.js";
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import SmartView from "./smart.js";
 import {TimeRange} from "../const";
 import {getRank} from "../utils/common";
@@ -75,7 +75,7 @@ export default class Statistic extends SmartView {
   }
 
   setFilms(films) {
-    this.updateData({films}, true)
+    this.updateData({films}, true);
     this._getStatistic();
     this._getRank();
     this._setInnerHandlers();
@@ -90,7 +90,7 @@ export default class Statistic extends SmartView {
         }
 
         if (this._data.timeRangeSelected === TimeRange.YEAR) {
-          return dayjs().year() === dayjs(film.viewDate).year()
+          return dayjs().year() === dayjs(film.viewDate).year();
         }
 
         if (this._data.timeRangeSelected === TimeRange.MONTH) {
@@ -104,9 +104,9 @@ export default class Statistic extends SmartView {
         if (this._data.timeRangeSelected === TimeRange.TODAY) {
           return dayjs().year() === dayjs(film.viewDate).year() && dayjs().dayOfYear() === dayjs(film.viewDate).dayOfYear();
         }
-
-        return false;
       }
+
+      return false;
     });
   }
 
@@ -151,7 +151,7 @@ export default class Statistic extends SmartView {
 
   _setInnerHandlers() {
     this.getElement().querySelector(`.statistic__filters`).addEventListener(`change`, this._statisticPeriodClickHandler);
-  };
+  }
 
   _statisticPeriodClickHandler(evt) {
     if (evt.target.classList.contains(`statistic__filters-input`)) {
@@ -177,7 +177,7 @@ export default class Statistic extends SmartView {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
-        labels: labels,
+        labels,
         datasets: [{
           data: labelsCount,
           backgroundColor: `#ffe800`,
@@ -192,8 +192,8 @@ export default class Statistic extends SmartView {
               size: 20
             },
             color: `#ffffff`,
-            anchor: 'start',
-            align: 'start',
+            anchor: `start`,
+            align: `start`,
             offset: 40,
           }
         },
@@ -229,5 +229,5 @@ export default class Statistic extends SmartView {
         }
       }
     });
-  };
+  }
 }
