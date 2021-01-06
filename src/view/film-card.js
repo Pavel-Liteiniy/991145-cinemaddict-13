@@ -12,7 +12,7 @@ const getCheckedDescription = (description) => {
   return description.length > DESCRIPTION_MAX_LENGTH ? (description.slice(0, DESCRIPTION_MAX_LENGTH - 2) + DESCRIPTION_LAST_ITEM) : description;
 };
 
-const createFilmCard = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
+const createFilmCard = ({title, genre, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
   const durationHours = dayjs.duration(duration, `minutes`).hours();
   const durationMinutes = dayjs.duration(duration, `minutes`).minutes();
 
@@ -22,7 +22,7 @@ const createFilmCard = ({title, poster, description, date, duration, comments, r
   <p class="film-card__info">
     <span class="film-card__year">${dayjs(date).year()}</span>
     <span class="film-card__duration">${durationHours ? durationHours + `h ` : ``}${durationMinutes}m</span>
-    <span class="film-card__genre">Cartoon</span>
+    <span class="film-card__genre">${genre.join(`, `)}</span>
   </p>
   <img src="./images/posters/${poster}" alt="${title}" class="film-card__poster">
   <p class="film-card__description">${getCheckedDescription(description)}</p>

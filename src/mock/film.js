@@ -7,8 +7,11 @@ const DatesDraft = {
   YEAR: {
     FILM: [dayjs().year(), 1900],
     COMMENT: [dayjs().year(), 2018],
+    VIEW: [dayjs().year(), 2019]
   },
   MONTH: [11, 0],
+  HOUR: [23, 0],
+  MINUTE: [59, 0],
 };
 
 const Film = {
@@ -23,7 +26,8 @@ const Film = {
   RATING: {
     MIN: 0,
     MAX: 100,
-  }
+  },
+  GENRES: [`Drama`, `Film-Noir`, `Mystery`, `Musical`, `Cartoon`, `Western`, `Comedy`],
 };
 
 const Comment = {
@@ -74,6 +78,16 @@ const generateDescription = ({
   return randomSentences.join(` `);
 };
 
+const generateViewedDate = () => {
+  const randomYear = getRandomInteger(...DatesDraft.YEAR.VIEW);
+  const randomMonth = getRandomInteger(...DatesDraft.MONTH);
+  const randomDay = getRandomInteger(dayjs(randomMonth).daysInMonth(), 1);
+  const randomHours = getRandomInteger(...DatesDraft.HOUR);
+  const randomMinutes = getRandomInteger(...DatesDraft.MINUTE);
+
+  return dayjs(new Date(randomYear, randomMonth, randomDay, randomHours, randomMinutes));
+};
+
 const generateFilmDate = () => {
   const randomYear = getRandomInteger(...DatesDraft.YEAR.FILM);
   const randomMonth = getRandomInteger(...DatesDraft.MONTH);
@@ -113,9 +127,11 @@ export const generateFilm = () => {
   return {
     id: nanoid(),
     title,
+    genre: [Film.GENRES[getRandomInteger(Film.GENRES.length - 1)]],
     poster: generatePoster(title, Film),
     description: generateDescription(Film),
     date: generateFilmDate(),
+    viewDate: generateViewedDate(),
     duration: getRandomInteger(190, 3),
     comments: generateComments(Comment),
     rating: getRandomInteger(Film.RATING.MAX),

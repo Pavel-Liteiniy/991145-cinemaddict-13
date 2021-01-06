@@ -1,6 +1,7 @@
 import AbstractView from "./abstract";
+import {getRank} from "../utils/common";
 
-const createUserRank = ({RANK: rank}) => {
+const createUserRank = (rank) => {
   return rank ?
     `<section class="header__profile profile">
     <p class="profile__rating">${rank}</p>
@@ -10,12 +11,20 @@ const createUserRank = ({RANK: rank}) => {
 };
 
 export default class UserRank extends AbstractView {
-  constructor(user) {
+  constructor() {
     super();
-    this._user = user;
   }
 
   getTemplate() {
-    return createUserRank(this._user);
+    return createUserRank(this.userRank);
+  }
+
+  setWatchedMoviesCount(watchedMoviesCount) {
+    this.watchedMoviesCount = watchedMoviesCount;
+    this._getRank();
+  }
+
+  _getRank() {
+    this.userRank = getRank(this.watchedMoviesCount);
   }
 }

@@ -37,7 +37,14 @@ const handleMenuItemChange = (updateType, menuItem) => {
   }
 };
 
+const handleUserRankChange = () => {
+  userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
+  remove(userRankComponent);
+  render(siteHeaderElement, userRankComponent);
+}
+
 filterModel.addObserver(handleMenuItemChange);
+moviesModel.addObserver(handleUserRankChange);
 
 const user = generateUser();
 
@@ -48,8 +55,10 @@ const siteFooterStatisticElement = siteBodyElement.querySelector(`.footer__stati
 
 
 const statisticComponent = new StatisticView();
+const userRankComponent = new UserRankView();
+userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
 
-render(siteHeaderElement, new UserRankView(user));
+render(siteHeaderElement, userRankComponent);
 
 const menuPresenter = new MenuPresenter(siteMainElement, moviesModel, filterModel);
 menuPresenter.init();

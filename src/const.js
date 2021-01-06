@@ -39,3 +39,11 @@ export const FilterType = {
   FAVORITES: `favorites`,
   DISABLED: ``,
 };
+
+export const TimeRange = {
+  ALL_TIME: `all-time`,
+  TODAY: `today`,
+  WEEK: `week`,
+  MONTH: `month`,
+  YEAR: `year`,
+}

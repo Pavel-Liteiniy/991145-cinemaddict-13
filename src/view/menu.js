@@ -1,6 +1,8 @@
 import AbstractView from "./abstract";
 import {FilterType} from "../const.js";
 
+const TAG_NAME_LINK = `A`;
+
 const createMenu = ({watchlist = 0, history = 0, favorites = 0}, filterSelected = FilterType.ALL) => {
   return `<nav class="main-navigation">
   <div class="main-navigation__items">
@@ -38,12 +40,13 @@ export default class Menu extends AbstractView {
   setClickMenuHandler(callback) {
     this._callback.clickFilter = callback;
 
-    this.getElement().addEventListener(`click`, this._clickMenuHandler);
+    Array.from(this.getElement().querySelectorAll(`a`)).forEach((link) => {
+      link.addEventListener(`click`, this._clickMenuHandler);
+    })
   }
 
   _clickMenuHandler(evt) {
-    evt.preventDefault();
-
-    this._callback.clickFilter(evt.target.dataset.filter);
+      evt.preventDefault();
+      this._callback.clickFilter(evt.currentTarget.dataset.filter);
   }
 }
