@@ -1,5 +1,4 @@
-import {USER_RANK} from "./../const";
-import {getRandomInteger} from "./../utils/common";
+import {getRandomInteger, getRank} from "./../utils/common";
 import {Film} from "./film";
 
 const getRandomTitles = ({TITLES: titles}) => {
@@ -11,19 +10,6 @@ const getRandomTitles = ({TITLES: titles}) => {
   }
 
   return randomTitles;
-};
-
-const getRank = (watchedFilmsCount) => {
-  let userRank = false;
-
-  for (let [range, rank] of USER_RANK) {
-    if (watchedFilmsCount >= range[0] && watchedFilmsCount <= range[1]) {
-      userRank = rank;
-      break;
-    }
-  }
-
-  return userRank;
 };
 
 export const generateUser = () => {

@@ -1,4 +1,4 @@
-import {SortType} from "../const";
+import {SortType, UserAction, UpdateType, FilterType} from "../const";
 import {remove, render, replace} from "../utils/render";
 import FilmsWrapperView from "../view/films-wrapper";
 import FilmsCatalogView from "../view/films-catalog";
@@ -8,7 +8,6 @@ import PopupView from "../view/popup";
 import TopRatedFilmsView from "../view/top-rated-films";
 import MostCommentedFilmsView from "../view/most-commented-films";
 import MoviePresenter from "./movie";
-import {updateItem} from '../utils/common';
 
 const CARDS_COUNT = 5;
 const CARDS_EXTRA_COUNT = 2;
@@ -18,73 +17,155 @@ const TypeExtraFilms = {
 };
 
 export default class MovieList {
-  constructor(filmsContainer) {
+  constructor(filmsContainer, moviesModel, filterModel) {
     this._filmsContainer = filmsContainer;
+    this._moviesModel = moviesModel;
+    this._filterModel = filterModel;
     this._cardsCount = CARDS_COUNT;
+    this._renderedFilms = this._cardsCount;
     this._cardsExtraCount = CARDS_EXTRA_COUNT;
     this._typeExtraFilms = TypeExtraFilms;
     this._allMoviesPresenters = new Map();
-    this._extraMoviesPresenters = new Map();
+    this._topRatedMoviesPresenters = new Map();
+    this._mostCommentedMoviesPresenters = new Map();
 
     this._topRatedFilms = [];
     this._mostCommentedFilms = [];
+    this._filterSelected = FilterType.ALL;
     this._sortTypeSelected = SortType.BY_DEFAULT;
 
     this._popupComponent = new PopupView();
     this._filmsWrapperComponent = new FilmsWrapperView();
-    this._moviesSortComponent = new MoviesSortView(this._sortTypeSelected);
+    this._moviesSortComponent = new MoviesSortView();
     this._showButtonComponent = new ShowButtonView();
+    this._filmsCatalogComponent = null;
 
     this._showButtonClickHandler = this._showButtonClickHandler.bind(this);
-    this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
-  init(films) {
-    this._films = films.slice();
-    this._sourcedFilms = films.slice();
-    this._filmsCatalogComponent = new FilmsCatalogView(this._films);
-    this._filmsCardContainer = this._filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
+  init() {
+    this._moviesModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
 
+    this._moviesSortComponent.updateData({sortTypeSelected: this._sortTypeSelected}, true);
     this._moviesSortComponent.setClickHandler(this._handleSortTypeChange);
     render(this._filmsContainer, this._moviesSortComponent);
 
     render(this._filmsContainer, this._filmsWrapperComponent);
+
+    this._renderMoviesListAll();
+
     render(this._filmsWrapperComponent, this._filmsCatalogComponent);
-
-    this._renderedFilms = this._cardsCount;
-    this._renderAllMoviesList();
-
-    this._renderExtraFilmsLists();
+    this._renderMovieListsExtra();
   }
 
-  _renderAllMoviesList() {
-    this._renderFilmCardElements(this._filmsCardContainer, this._films.slice(0, this._cardsCount));
+  destroy() {
+    this._moviesModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
 
-    if (this._renderedFilms < this._films.length) {
-      render(this._filmsCatalogComponent, this._showButtonComponent);
-      this._showButtonComponent.setClickHandler(this._showButtonClickHandler);
+    this._clearAllMoviesList();
+    this._clearTopRatedMoviesList();
+    this._clearMostCommentedMoviesList();
+
+    remove(this._moviesSortComponent);
+    remove(this._filmsCatalogComponent);
+    remove(this._filmsWrapperComponent);
+  }
+
+  _getMovies() {
+    let movies = this._moviesModel.getMovies().slice();
+
+    switch (this._filterSelected) {
+      case FilterType.WATCHLIST:
+        movies = movies.filter((movie) => {
+          return movie.inWatchListCollection;
+        });
+        break;
+      case FilterType.HISTORY:
+        movies = movies.filter((movie) => {
+          return movie.inWatchedCollection;
+        });
+        break;
+      case FilterType.FAVORITES:
+        movies = movies.filter((movie) => {
+          return movie.inFavoriteCollection;
+        });
+        break;
+    }
+
+    switch (this._sortTypeSelected) {
+      case SortType.BY_RATING:
+        movies.sort(({rating: a}, {rating: b}) => {
+          return b - a;
+        });
+        break;
+      case SortType.BY_DATE:
+        movies.sort(({date: a}, {date: b}) => {
+          return b - a;
+        });
+        break;
+    }
+
+    return movies;
+  }
+
+  _renderMoviesAllContainer() {
+    const prevFilmsCatalogComponent = this._filmsCatalogComponent;
+
+    this._filmsCatalogComponent = new FilmsCatalogView();
+    this._filmsCatalogComponent.setFilms(this._getMovies());
+    this._filmsCardContainer = this._filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
+
+    if (prevFilmsCatalogComponent === null) {
+      render(this._filmsWrapperComponent, this._filmsCatalogComponent);
+      return;
+    }
+
+    if (this._filmsWrapperComponent.getElement().contains(prevFilmsCatalogComponent.getElement())) {
+      replace(this._filmsCatalogComponent, prevFilmsCatalogComponent);
+    }
+
+    remove(prevFilmsCatalogComponent);
+  }
+
+  _renderMoviesListAll() {
+    this._renderMoviesAllContainer();
+    this._renderFilmCardElements(this._filmsCardContainer, this._getMovies().slice(0, this._renderedFilms));
+
+    if (this._getMovies().length > this._renderedFilms) {
+      this._renderShowButton();
     }
   }
 
-  _renderExtraFilmsLists() {
-    this._createExtraFilmsElement(this._films, this._typeExtraFilms.TOP_RATED);
-    this._createExtraFilmsElement(this._films, this._typeExtraFilms.MOST_COMMENTED);
+  _renderShowButton() {
+    this._showButtonComponent.setClickHandler(this._showButtonClickHandler);
+    render(this._filmsCatalogComponent, this._showButtonComponent);
+  }
+
+  _renderMovieListsExtra() {
+    this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.TOP_RATED);
+    this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.MOST_COMMENTED);
   }
 
   _renderFilmCardElements(container, movies) {
     movies.map((movie) => {
-      const filmComponent = new MoviePresenter(container, this._popupComponent, this._handleFilmChange);
+      const filmComponent = new MoviePresenter(container, this._popupComponent, this._handleViewAction);
       filmComponent.init(movie);
       this._allMoviesPresenters.set(movie.id, filmComponent);
     });
   }
 
   _showButtonClickHandler() {
-    this._renderFilmCardElements(this._filmsCardContainer, this._films.slice(this._renderedFilms, this._renderedFilms + this._cardsCount));
-    this._renderedFilms += this._cardsCount;
+    const moviesCount = this._getMovies().length;
+    const newRenderedFilms = Math.min(moviesCount, this._renderedFilms + this._cardsCount);
 
-    if (this._renderedFilms >= this._films.length) {
+    this._renderFilmCardElements(this._filmsCardContainer, this._getMovies().slice(this._renderedFilms, newRenderedFilms));
+    this._renderedFilms = newRenderedFilms;
+
+    if (this._renderedFilms >= moviesCount) {
       remove(this._showButtonComponent);
     }
   }
@@ -101,15 +182,28 @@ export default class MovieList {
     }).slice(0, quantity);
   }
 
-  _renderExtraFilms(componentContainer, movies) {
+  _renderTopRatedFilms(componentContainer, movies) {
     render(this._filmsWrapperComponent, componentContainer);
     const componentFilmsContainer = componentContainer.getElement().querySelector(`.films-list__container`);
 
     if (componentFilmsContainer) {
       movies.map((movie) => {
-        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleFilmChange);
+        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction);
         filmComponent.init(movie);
-        this._extraMoviesPresenters.set(movie.id, filmComponent);
+        this._topRatedMoviesPresenters.set(movie.id, filmComponent);
+      });
+    }
+  }
+
+  _renderMostCommentedFilms(componentContainer, movies) {
+    render(this._filmsWrapperComponent, componentContainer);
+    const componentFilmsContainer = componentContainer.getElement().querySelector(`.films-list__container`);
+
+    if (componentFilmsContainer) {
+      movies.map((movie) => {
+        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction);
+        filmComponent.init(movie);
+        this._mostCommentedMoviesPresenters.set(movie.id, filmComponent);
       });
     }
   }
@@ -119,70 +213,102 @@ export default class MovieList {
       case this._typeExtraFilms.TOP_RATED:
         this._topRatedFilms = this._getTopRatedFilms(movies, this._cardsExtraCount);
         this._topRatedComponent = new TopRatedFilmsView(this._topRatedFilms);
-        this._renderExtraFilms(this._topRatedComponent, this._topRatedFilms);
+        this._renderTopRatedFilms(this._topRatedComponent, this._topRatedFilms);
         break;
       case this._typeExtraFilms.MOST_COMMENTED:
         this._mostCommentedFilms = this._getMostCommentedFilms(movies, this._cardsExtraCount);
         this._mostCommentedComponent = new MostCommentedFilmsView(this._mostCommentedFilms);
-        this._renderExtraFilms(this._mostCommentedComponent, this._mostCommentedFilms);
+        this._renderMostCommentedFilms(this._mostCommentedComponent, this._mostCommentedFilms);
         break;
     }
   }
 
-  _handleFilmChange(film) {
-    this._films = updateItem(this._films, film);
-
-    if (this._allMoviesPresenters.has(film.id)) {
-      this._allMoviesPresenters.get(film.id).init(film);
+  _handleViewAction(userAction, update) {
+    switch (userAction) {
+      case UserAction.UPDATE_MOVIE:
+        this._moviesModel.updateMovie(UpdateType.MINOR, update);
+        break;
+      case UserAction.ADD_COMMENT:
+      case UserAction.DELETE_COMMENT:
+        this._moviesModel.updateMovie(UpdateType.PATCH, update);
+        break;
     }
 
-    if (this._extraMoviesPresenters.has(film.id)) {
-      this._extraMoviesPresenters.get(film.id).init(film);
+  }
+
+  _handleModelEvent(updateType, data) {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        if (this._allMoviesPresenters.has(data.id)) {
+          this._allMoviesPresenters.get(data.id).init(data);
+        }
+        this._clearMostCommentedMoviesList();
+        this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.MOST_COMMENTED);
+        if (this._topRatedMoviesPresenters.has(data.id)) {
+          this._topRatedMoviesPresenters.get(data.id).init(data);
+        }
+        break;
+      case UpdateType.MINOR:
+        this._clearAllMoviesList();
+        this._renderMoviesListAll();
+
+        if (this._topRatedMoviesPresenters.has(data.id)) {
+          this._topRatedMoviesPresenters.get(data.id).init(data);
+        }
+        if (this._mostCommentedMoviesPresenters.has(data.id)) {
+          this._mostCommentedMoviesPresenters.get(data.id).init(data);
+        }
+        break;
+      case UpdateType.MAJOR:
+        if (data === FilterType.DISABLED) {
+          break;
+        }
+
+        this._filterSelected = data;
+        this._sortTypeSelected = SortType.BY_DEFAULT;
+        this._moviesSortComponent.updateData({sortTypeSelected: this._sortTypeSelected});
+        this._clearAllMoviesList();
+        this._renderedFilms = this._cardsCount;
+        this._renderMoviesListAll();
+        break;
+      case UpdateType.STATS:
+        if (data === FilterType.DISABLED) {
+          this._filterSelected = data;
+          this._sortTypeSelected = SortType.BY_DEFAULT;
+          this._renderedFilms = this._cardsCount;
+          this.destroy();
+        } else {
+          this.init();
+        }
+        break;
     }
   }
 
   _handleSortTypeChange(newSortType) {
     if (newSortType !== this._sortTypeSelected) {
-      const prevMoviesSortComponent = this._moviesSortComponent;
       this._sortTypeSelected = newSortType;
-      this._moviesSortComponent = new MoviesSortView(this._sortTypeSelected);
-      this._moviesSortComponent.setClickHandler(this._handleSortTypeChange);
+      this._moviesSortComponent.updateData({sortTypeSelected: this._sortTypeSelected});
 
-      if (this._filmsContainer.contains(prevMoviesSortComponent.getElement())) {
-        replace(this._moviesSortComponent, prevMoviesSortComponent);
-      }
-
-      remove(prevMoviesSortComponent);
-
-      this._sortFilms(newSortType);
       this._clearAllMoviesList();
-      this._renderAllMoviesList();
+      this._renderMoviesListAll();
     }
-  }
-
-  _sortFilms(newSortType) {
-    switch (newSortType) {
-      case SortType.BY_RATING:
-        this._films.sort(({rating: a}, {rating: b}) => {
-          return b - a;
-        });
-        break;
-      case SortType.BY_DATE:
-        this._films.sort(({date: a}, {date: b}) => {
-          return b - a;
-        });
-        break;
-      default:
-        this._films = this._sourcedFilms.slice();
-    }
-
-    this._sortTypeSelected = newSortType;
   }
 
   _clearAllMoviesList() {
     this._allMoviesPresenters.forEach((presenter) => presenter.destroy());
     this._allMoviesPresenters.clear();
-    this._renderedFilms = this._cardsCount;
     remove(this._showButtonComponent);
+  }
+
+  _clearMostCommentedMoviesList() {
+    this._mostCommentedMoviesPresenters.forEach((presenter) => presenter.destroy());
+    this._mostCommentedMoviesPresenters.clear();
+    this._filmsWrapperComponent.getElement().lastChild.remove();
+  }
+
+  _clearTopRatedMoviesList() {
+    this._topRatedMoviesPresenters.forEach((presenter) => presenter.destroy());
+    this._topRatedMoviesPresenters.clear();
+    this._filmsWrapperComponent.getElement().lastChild.remove();
   }
 }

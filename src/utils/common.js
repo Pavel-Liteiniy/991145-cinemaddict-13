@@ -1,3 +1,5 @@
+import {USER_RANK} from "../const";
+
 export const getRandomInteger = (max, min = 0) => {
   return Math.floor(min + Math.random() * (max + 1 - min));
 };
@@ -18,9 +20,7 @@ export const getNumberFormat = (value) => {
   return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ` `);
 };
 
-export const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
-
+export const updateItem = (items, update, index) => {
   if (index === -1) {
     return items;
   }
@@ -30,4 +30,17 @@ export const updateItem = (items, update) => {
     update,
     ...items.slice(index + 1)
   ];
+};
+
+export const getRank = (watchedFilmsCount) => {
+  let userRank = false;
+
+  for (let [range, rank] of USER_RANK) {
+    if (watchedFilmsCount >= range[0] && watchedFilmsCount <= range[1]) {
+      userRank = rank;
+      break;
+    }
+  }
+
+  return userRank;
 };

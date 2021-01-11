@@ -18,3 +18,32 @@ export const SortType = {
   BY_DATE: `date`,
   BY_RATING: `rating`
 };
+
+export const UserAction = {
+  UPDATE_MOVIE: `UPDATE_MOVIE`,
+  ADD_COMMENT: `ADD_COMMENT`,
+  DELETE_COMMENT: `DELETE_COMMENT`
+};
+
+export const UpdateType = {
+  PATCH: `PATCH`,
+  MINOR: `MINOR`,
+  MAJOR: `MAJOR`,
+  STATS: `STATS`,
+};
+
+export const FilterType = {
+  ALL: `all`,
+  WATCHLIST: `watchlist`,
+  HISTORY: `history`,
+  FAVORITES: `favorites`,
+  DISABLED: ``,
+};
+
+export const TimeRange = {
+  ALL_TIME: `all-time`,
+  TODAY: `today`,
+  WEEK: `week`,
+  MONTH: `month`,
+  YEAR: `year`,
+};

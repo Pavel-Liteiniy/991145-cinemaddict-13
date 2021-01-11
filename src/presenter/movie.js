@@ -1,4 +1,5 @@
 import {remove, render, replace} from "../utils/render";
+import {UserAction} from "../const";
 import MovieCardView from "../view/film-card";
 
 export default class Movie {
@@ -15,6 +16,8 @@ export default class Movie {
     this._popupEscKeyDownHandler = this._popupEscKeyDownHandler.bind(this);
     this._popupClickHandler = this._popupClickHandler.bind(this);
     this._popupClickButtonHandler = this._popupClickButtonHandler.bind(this);
+    this._popupSubmitCommentHandler = this._popupSubmitCommentHandler.bind(this);
+    this._popupClickDeleteCommentButtonHandler = this._popupClickDeleteCommentButtonHandler.bind(this);
   }
 
   init(film) {
@@ -43,7 +46,7 @@ export default class Movie {
   }
 
   _movieCardClickHandler() {
-    if (this._popupComponent.getFilm() === this._film) {
+    if (this._popupComponent.getFilm() === this._film && this._bodyElement.contains(this._popupComponent.getElement())) {
       return;
     }
 
@@ -53,9 +56,11 @@ export default class Movie {
       this._bodyElement.classList.remove(`hide-overflow`);
     }
 
-    this._popupComponent.setFilm(this._film);
+    this._popupComponent.setFilm(Object.assign({}, this._film));
     this._popupComponent.setClickHandler(this._popupClickHandler);
     this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
+    this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
+    this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
     this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
 
     render(this._bodyElement, this._popupComponent);
@@ -63,17 +68,30 @@ export default class Movie {
   }
 
   _movieCardClickButtonHandler(film) {
-    this._handleFilmChange(film);
+    this._handleFilmChange(UserAction.UPDATE_MOVIE, film);
   }
 
   _popupClickHandler() {
     this._popupComponent.removeEscKeyDownHandler();
+    this._popupComponent.removeSubmitCommentHandler();
     remove(this._popupComponent);
     this._bodyElement.classList.remove(`hide-overflow`);
   }
 
   _popupClickButtonHandler(film) {
-    this._handleFilmChange(film);
+    this._handleFilmChange(UserAction.UPDATE_MOVIE, film);
+  }
+
+  _popupSubmitCommentHandler(film) {
+    this._popupComponent.updateData(film);
+    this._popupComponent.updateScrollTop();
+    this._handleFilmChange(UserAction.ADD_COMMENT, film);
+  }
+
+  _popupClickDeleteCommentButtonHandler(film) {
+    this._popupComponent.updateData(film);
+    this._popupComponent.updateScrollTop();
+    this._handleFilmChange(UserAction.DELETE_COMMENT, film);
   }
 
   _popupEscKeyDownHandler() {

@@ -1,12 +1,16 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import durationDayjs from "dayjs/plugin/duration";
+import he from "he";
 import SmartView from "./smart";
 import {FilmsCollection} from "../const";
 
 dayjs.extend(relativeTime);
+dayjs.extend(durationDayjs);
 
 const KEY_ESCAPE = `Escape`;
 const KEY_ESC = `Esc`;
+const KEY_ENTER = `Enter`;
 
 const Emoji = {
   SMILE: {
@@ -40,11 +44,11 @@ const createComments = (comments) => {
       <img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">
     </span>
     <div>
-      <p class="film-details__comment-text">${message}</p>
+      <p class="film-details__comment-text">${he.encode(message)}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${author}</span>
         <span class="film-details__comment-day">${dayjs(date).fromNow()}</span>
-        <button class="film-details__comment-delete">Delete</button>
+        <button class="film-details__comment-delete" data-author="${author}">Delete</button>
       </p>
     </div>
   </li>`);
@@ -53,11 +57,14 @@ const createComments = (comments) => {
   return commentsList;
 };
 
-const createEmojiImage = ({VALUE: value, URL: url, ALT: alt}) => {
+const createEmojiImage = ({VALUE: value = ``, URL: url = ``, ALT: alt = ``}) => {
   return value ? `<img src="${url}" width="50" height="50" alt="${alt}">` : ``;
 };
 
-const createPopup = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection, emojiSelected = {}}) => {
+const createPopup = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}, emojiSelected = {}) => {
+  const durationHours = dayjs.duration(duration, `minutes`).hours();
+  const durationMinutes = dayjs.duration(duration, `minutes`).minutes();
+
   return `<section class="film-details">
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
@@ -101,7 +108,7 @@ const createPopup = ({title, poster, description, date, duration, comments, rati
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">${dayjs().minute(duration).format(`h[h] m[m]`)}</td>
+              <td class="film-details__cell">${durationHours ? durationHours + `h ` : ``}${durationMinutes}m</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
@@ -180,11 +187,14 @@ const createPopup = ({title, poster, description, date, duration, comments, rati
 export default class Popup extends SmartView {
   constructor() {
     super();
+    this._emojiSelected = {};
 
     this._clickHandler = this._clickHandler.bind(this);
     this._clickButtonHandler = this._clickButtonHandler.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._changeEmojiHandler = this._changeEmojiHandler.bind(this);
+    this._clickDeleteCommentButtonHandler = this._clickDeleteCommentButtonHandler.bind(this);
+    this._submitCommentHandler = this._submitCommentHandler.bind(this);
   }
 
   setFilm(film) {
@@ -197,7 +207,11 @@ export default class Popup extends SmartView {
   }
 
   getTemplate() {
-    return createPopup(this._data);
+    return createPopup(this._data, this._emojiSelected);
+  }
+
+  updateScrollTop() {
+    this.getElement().scrollTop = this._scrollTop;
   }
 
   setClickHandler(callback) {
@@ -208,7 +222,27 @@ export default class Popup extends SmartView {
 
   _clickHandler(evt) {
     evt.preventDefault();
+    this._emojiSelected = {};
     this._callback.click();
+  }
+
+  setClickDeleteCommentButtonHandler(callback) {
+    this._callback.clickDeleteCommentButton = callback;
+    this.getElement().querySelector(`.film-details__comments-list`).addEventListener(`click`, this._clickDeleteCommentButtonHandler);
+  }
+
+  _clickDeleteCommentButtonHandler(evt) {
+    if (evt.target.classList.contains(`film-details__comment-delete`)) {
+      evt.preventDefault();
+
+      const commentIndex = this._data.comments.findIndex((comment) => {
+        return comment.author === evt.target.dataset.author;
+      });
+
+      this._data.comments.splice(commentIndex, 1);
+      this._scrollTop = this.getElement().scrollTop;
+      this._callback.clickDeleteCommentButton(this._data);
+    }
   }
 
   setClickButtonHandler(callback) {
@@ -250,7 +284,34 @@ export default class Popup extends SmartView {
   _escKeyDownHandler(evt) {
     if (evt.key === KEY_ESCAPE || evt.key === KEY_ESC) {
       evt.preventDefault();
+      this._emojiSelected = {};
       this._callback.escKeyDown();
+    }
+  }
+
+  setSubmitCommentHandler(callback) {
+    this._callback.submitComment = callback;
+    document.addEventListener(`keydown`, this._submitCommentHandler);
+  }
+
+  removeSubmitCommentHandler() {
+    document.removeEventListener(`keydown`, this._submitCommentHandler);
+  }
+
+  _submitCommentHandler(evt) {
+    const message = this.getElement().querySelector(`.film-details__comment-input`).value;
+    const emoji = this._emojiSelected.VALUE;
+    if (evt.ctrlKey && evt.key === KEY_ENTER && message && emoji) {
+      evt.preventDefault();
+      this._scrollTop = this.getElement().scrollTop;
+      this._data.comments.push({
+        message,
+        emoji,
+        author: `author`,
+        date: dayjs()
+      });
+      this._emojiSelected = {};
+      this._callback.submitComment(this._data);
     }
   }
 
@@ -258,6 +319,8 @@ export default class Popup extends SmartView {
     this._setInnerHandlers();
 
     this.setClickHandler(this._callback.click);
+    this.setClickDeleteCommentButtonHandler(this._callback.clickDeleteCommentButton);
+    this.setSubmitCommentHandler(this._callback.submitComment);
     this.setClickButtonHandler(this._callback.clickButton);
     this.setEscKeyDownHandler(this._callback.escKeyDown);
   }
@@ -271,30 +334,31 @@ export default class Popup extends SmartView {
   _changeEmojiHandler(evt) {
     if (evt.target.classList.contains(`film-details__emoji-item`)) {
 
-      if (`emojiSelected` in this._data) {
-        if (this._data.emojiSelected.VALUE === evt.target.value) {
-          return;
-        }
+      if (this.emojiSelected === evt.target.value) {
+        return;
       }
 
-      const PopupscrollTop = this.getElement().scrollTop;
+      this._scrollTop = this.getElement().scrollTop;
 
       switch (evt.target.value) {
         case Emoji.SMILE.VALUE:
-          this.updateData({emojiSelected: Emoji.SMILE});
+          this._emojiSelected = Emoji.SMILE;
           break;
         case Emoji.SLEEPING.VALUE:
-          this.updateData({emojiSelected: Emoji.SLEEPING});
+          this._emojiSelected = Emoji.SLEEPING;
           break;
         case Emoji.PUKE.VALUE:
-          this.updateData({emojiSelected: Emoji.PUKE});
+          this._emojiSelected = Emoji.PUKE;
           break;
         case Emoji.ANGRY.VALUE:
-          this.updateData({emojiSelected: Emoji.ANGRY});
+          this._emojiSelected = Emoji.ANGRY;
           break;
       }
 
-      this.getElement().scrollTop = PopupscrollTop;
+      const message = this.getElement().querySelector(`.film-details__comment-input`).value;
+      this.updateElement();
+      this.getElement().querySelector(`.film-details__comment-input`).value = message;
+      this.updateScrollTop();
     }
   }
 }

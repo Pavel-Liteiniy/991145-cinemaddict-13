@@ -1,4 +1,4 @@
-import AbstractView from "./abstract";
+import SmartView from "./smart";
 import {SortType} from "../const";
 
 
@@ -10,16 +10,15 @@ const createMoviesSort = (sortTypeSelected = SortType.BY_DEFAULT) => {
   </ul>`;
 };
 
-export default class MoviesSort extends AbstractView {
-  constructor(sortTypeSelected) {
+export default class MoviesSort extends SmartView {
+  constructor() {
     super();
-    this._sortTypeSelected = sortTypeSelected;
 
     this._clickHandler = this._clickHandler.bind(this);
   }
 
   getTemplate() {
-    return createMoviesSort(this._sortTypeSelected);
+    return createMoviesSort(this._data.sortTypeSelected);
   }
 
   setClickHandler(callback) {
@@ -34,5 +33,9 @@ export default class MoviesSort extends AbstractView {
 
       this._callback.click(evt.target.dataset.sortType);
     }
+  }
+
+  restoreHandlers() {
+    this.setClickHandler(this._callback.click);
   }
 }
