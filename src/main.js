@@ -1,4 +1,5 @@
 import {FilterType, UpdateType} from "./const";
+import Api from "./api";
 import {remove, render} from "./utils/render";
 import UserRankView from "./view/user-rank";
 import StatisticView from "./view/statistic";
@@ -8,6 +9,22 @@ import MovieListPresenter from "./presenter/movie-list";
 import MenuPresenter from "./presenter/menu";
 import MoviesModel from "./model/movies";
 import FilterModel from "./model/filter";
+
+const AUTHORIZATION = `Basic b1xzmf1k0zj8v7jvzi59`;
+const END_POINT = `https://13.ecmascript.pages.academy/cinemaddict/`;
+
+const api = new Api(END_POINT, AUTHORIZATION);
+
+api.getMovies().then((movies) => {
+  const films = movies;
+  console.log(movies);
+
+  api.getComments(films[0]).then((comment => {
+    console.log(comment)
+  })
+
+  );
+});
 
 const FILMS_NUMBER = 20;
 let prevMenuItemSelected = null;

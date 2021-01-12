@@ -1,3 +1,5 @@
+import MoviesModel from "./model/movies";
+
 const Method = {
   GET: `GET`,
   PUT: `PUT`,
@@ -18,32 +20,36 @@ export default class Api {
 
   getMovies() {
     return this._load({url: `movies`})
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then((movies) => movies.map(MoviesModel.adaptMovieToClient));
   }
 
   updateMovie(movie) {
     return this._load({
       url: `movies/${movie.id}`,
       method: Method.PUT,
-      body: JSON.stringify(movie),
+      body: JSON.stringify(MoviesModel.adaptMovieToServer(movie)),
       headers: new Headers({"Content-Type": `application/json`})
     })
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then(MoviesModel.adaptMovieToClient);
   }
 
   getComments(movie) {
     return this._load({url: `comments/${movie.id}`})
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then((comments) => comments.map(MoviesModel.adaptCommentToClient));
   }
 
   addComment(movie, comment) {
     return this._load({
       url: `comments/${movie.id}`,
       method: Method.POST,
-      body: JSON.stringify(comment),
+      body: JSON.stringify(MoviesModel.adaptCommentToServer(comment)),
       headers: new Headers({"Content-Type": `application/json`})
     })
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then(MoviesModel.adaptCommentToClient);
   }
 
   deleteComment(comment) {
