@@ -18,13 +18,13 @@ const createFilmCard = ({title, genre, poster, description, date, duration, comm
 
   return `<article class="film-card">
   <h3 class="film-card__title">${title}</h3>
-  <p class="film-card__rating">${Math.trunc(rating / 10)}.${rating % 10}</p>
+  <p class="film-card__rating">${rating}</p>
   <p class="film-card__info">
     <span class="film-card__year">${dayjs(date).year()}</span>
     <span class="film-card__duration">${durationHours ? durationHours + `h ` : ``}${durationMinutes}m</span>
     <span class="film-card__genre">${genre.join(`, `)}</span>
   </p>
-  <img src="./images/posters/${poster}" alt="${title}" class="film-card__poster">
+  <img src="${poster}" alt="${title}" class="film-card__poster">
   <p class="film-card__description">${getCheckedDescription(description)}</p>
   <a class="film-card__comments">${comments.length} comments</a>
   <div class="film-card__controls">

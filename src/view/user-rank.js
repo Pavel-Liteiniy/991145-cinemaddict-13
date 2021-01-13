@@ -7,7 +7,7 @@ const createUserRank = (rank) => {
     <p class="profile__rating">${rank}</p>
     <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
     </section>`
-    : ``;
+    : `<section class="header__profile profile"></section>`;
 };
 
 export default class UserRank extends AbstractView {

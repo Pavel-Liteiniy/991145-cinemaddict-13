@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import {SortType, UserAction, UpdateType, FilterType} from "../const";
 import {remove, render, replace} from "../utils/render";
 import FilmsWrapperView from "../view/films-wrapper";
@@ -29,6 +30,7 @@ export default class MovieList {
     this._topRatedMoviesPresenters = new Map();
     this._mostCommentedMoviesPresenters = new Map();
 
+    this._isLoading = true;
     this._topRatedFilms = [];
     this._mostCommentedFilms = [];
     this._filterSelected = FilterType.ALL;
@@ -104,7 +106,7 @@ export default class MovieList {
         break;
       case SortType.BY_DATE:
         movies.sort(({date: a}, {date: b}) => {
-          return b - a;
+          return dayjs(b).diff(dayjs(a));
         });
         break;
     }
@@ -117,6 +119,7 @@ export default class MovieList {
 
     this._filmsCatalogComponent = new FilmsCatalogView();
     this._filmsCatalogComponent.setFilms(this._getMovies());
+    this._filmsCatalogComponent.setLoadingStatus(this._isLoading);
     this._filmsCardContainer = this._filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
 
     if (prevFilmsCatalogComponent === null) {
@@ -146,8 +149,11 @@ export default class MovieList {
   }
 
   _renderMovieListsExtra() {
-    this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.TOP_RATED);
-    this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.MOST_COMMENTED);
+    const movies = this._moviesModel.getMovies().slice();
+    if (movies.length > 0) {
+      this._createExtraFilmsElement(movies, this._typeExtraFilms.TOP_RATED);
+      this._createExtraFilmsElement(movies, this._typeExtraFilms.MOST_COMMENTED);
+    }
   }
 
   _renderFilmCardElements(container, movies) {
@@ -280,6 +286,10 @@ export default class MovieList {
         } else {
           this.init();
         }
+        break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        this.init();
         break;
     }
   }

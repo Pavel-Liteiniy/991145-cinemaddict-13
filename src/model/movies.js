@@ -12,9 +12,10 @@ export default class Movies extends Observer {
     };
   }
 
-  setMovies(movies) {
+  setMovies(updateType, movies) {
     this._movies = movies.slice();
     this._getMovieCount();
+    this._notify(updateType);
   }
 
   getMovies() {
@@ -30,15 +31,15 @@ export default class Movies extends Observer {
     const prevMovie = this._movies[index];
 
     if (prevMovie.inWatchListCollection !== updatedMovie.inWatchListCollection) {
-      this._movieCountInCollection.watchlist = updatedMovie.inWatchListCollection ? this._movieCountInCollection.watchlist += 1 : this._movieCountInCollection.watchlist -= 1;
+      this._movieCountInCollection.watchlist = updatedMovie.inWatchListCollection ? ++this._movieCountInCollection.watchlist : --this._movieCountInCollection.watchlist;
     }
 
     if (prevMovie.inWatchedCollection !== updatedMovie.inWatchedCollection) {
-      this._movieCountInCollection.history = updatedMovie.inWatchedCollection ? this._movieCountInCollection.history += 1 : this._movieCountInCollection.history -= 1;
+      this._movieCountInCollection.history = updatedMovie.inWatchedCollection ? ++this._movieCountInCollection.history : --this._movieCountInCollection.history;
     }
 
     if (prevMovie.inFavoriteCollection !== updatedMovie.inFavoriteCollection) {
-      this._movieCountInCollection.favorites = updatedMovie.inFavoriteCollection ? this._movieCountInCollection.favorites += 1 : this._movieCountInCollection.favorites -= 1;
+      this._movieCountInCollection.favorites = updatedMovie.inFavoriteCollection ? ++this._movieCountInCollection.favorites : --this._movieCountInCollection.favorites;
     }
 
     this._movies = updateItem(this._movies, updatedMovie, index);
@@ -47,9 +48,9 @@ export default class Movies extends Observer {
 
   _getMovieCount() {
     this._movies.forEach((movie) => {
-      this._movieCountInCollection.watchlist = movie.inWatchListCollection ? this._movieCountInCollection.watchlist += 1 : this._movieCountInCollection.watchlist;
-      this._movieCountInCollection.history = movie.inWatchedCollection ? this._movieCountInCollection.history += 1 : this._movieCountInCollection.history;
-      this._movieCountInCollection.favorites = movie.inFavoriteCollection ? this._movieCountInCollection.favorites += 1 : this._movieCountInCollection.favorites;
+      this._movieCountInCollection.watchlist = movie.inWatchListCollection ? ++this._movieCountInCollection.watchlist : this._movieCountInCollection.watchlist;
+      this._movieCountInCollection.history = movie.inWatchedCollection ? ++this._movieCountInCollection.history : this._movieCountInCollection.history;
+      this._movieCountInCollection.favorites = movie.inFavoriteCollection ? ++this._movieCountInCollection.favorites : this._movieCountInCollection.favorites;
     });
   }
 
