@@ -30,14 +30,28 @@ const filterModel = new FilterModel();
 const menuPresenter = new MenuPresenter(siteMainElement, moviesModel, filterModel);
 
 api.getMovies()
-  .then((films) => {
-    moviesModel.setMovies(UpdateType.INIT, films);
-    render(siteFooterStatisticElement, new MoviesSummaryView(films));
+  .then((movies) => {
 
-    userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
-    render(siteHeaderElement, userRankComponent);
+    movies = movies.map((movie) => {
+      return api.getComments(movie)
+        .then((comments) => {
+          return Object.assign({}, movie, {comments});
+        });
+    });
 
-    menuPresenter.init();
+    Promise.all(movies)
+    .then((films) => {
+      moviesModel.setMovies(UpdateType.INIT, films);
+      render(siteFooterStatisticElement, new MoviesSummaryView(films));
+
+      userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
+      render(siteHeaderElement, userRankComponent);
+
+      menuPresenter.init();
+    })
+    .catch(() => {
+      throw new Error(`Can't get comments for all or someone of the films`);
+    });
   })
   .catch(() => {
     moviesModel.setMovies(UpdateType.INIT, []);

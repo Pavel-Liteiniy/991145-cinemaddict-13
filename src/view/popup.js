@@ -57,11 +57,21 @@ const createComments = (comments) => {
   return commentsList;
 };
 
+const createGenres = (genres) => {
+  let genresList = [];
+
+  genresList = genres.map((genre) => {
+    return `<span class="film-details__genre">${genre}</span>`;
+  });
+
+  return genresList;
+};
+
 const createEmojiImage = ({VALUE: value = ``, URL: url = ``, ALT: alt = ``}) => {
   return value ? `<img src="${url}" width="50" height="50" alt="${alt}">` : ``;
 };
 
-const createPopup = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}, emojiSelected = {}) => {
+const createPopup = ({title, genre, poster, description, date, country, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection, alternativeTitle, ageRating, director, writers, actors}, emojiSelected = {}) => {
   const durationHours = dayjs.duration(duration, `minutes`).hours();
   const durationMinutes = dayjs.duration(duration, `minutes`).minutes();
 
@@ -73,34 +83,34 @@ const createPopup = ({title, poster, description, date, duration, comments, rati
       </div>
       <div class="film-details__info-wrap">
         <div class="film-details__poster">
-          <img class="film-details__poster-img" src="./images/posters/${poster}" alt="${title}">
-          <p class="film-details__age">18+</p>
+          <img class="film-details__poster-img" src="${poster}" alt="${title}">
+          <p class="film-details__age">${ageRating}+</p>
         </div>
 
         <div class="film-details__info">
           <div class="film-details__info-head">
             <div class="film-details__title-wrap">
               <h3 class="film-details__title">${title}</h3>
-              <p class="film-details__title-original">Original: The Great Flamarion</p>
+              <p class="film-details__title-original">Original: ${alternativeTitle}</p>
             </div>
 
             <div class="film-details__rating">
-              <p class="film-details__total-rating">${Math.trunc(rating / 10)}.${rating % 10}</p>
+              <p class="film-details__total-rating">${rating}</p>
             </div>
           </div>
 
           <table class="film-details__table">
             <tr class="film-details__row">
               <td class="film-details__term">Director</td>
-              <td class="film-details__cell">Anthony Mann</td>
+              <td class="film-details__cell">${director}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Writers</td>
-              <td class="film-details__cell">Anne Wigton, Heinz Herald, Richard Weil</td>
+              <td class="film-details__cell">${writers.join(`, `)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Actors</td>
-              <td class="film-details__cell">Erich von Stroheim, Mary Beth Hughes, Dan Duryea</td>
+              <td class="film-details__cell">${actors.join(`, `)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
@@ -112,14 +122,13 @@ const createPopup = ({title, poster, description, date, duration, comments, rati
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
-              <td class="film-details__cell">USA</td>
+              <td class="film-details__cell">${country}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">Genres</td>
+              <td class="film-details__term">${genre.length > 1 ? `Genres` : `Genre`}</td>
               <td class="film-details__cell">
-                <span class="film-details__genre">Drama</span>
-                <span class="film-details__genre">Film-Noir</span>
-                <span class="film-details__genre">Mystery</span></td>
+                ${createGenres(genre).join(``)}
+              </td>
             </tr>
           </table>
 
