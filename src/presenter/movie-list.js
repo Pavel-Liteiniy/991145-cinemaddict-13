@@ -18,10 +18,11 @@ const TypeExtraFilms = {
 };
 
 export default class MovieList {
-  constructor(filmsContainer, moviesModel, filterModel) {
+  constructor(filmsContainer, moviesModel, filterModel, api) {
     this._filmsContainer = filmsContainer;
     this._moviesModel = moviesModel;
     this._filterModel = filterModel;
+    this._api = api;
     this._cardsCount = CARDS_COUNT;
     this._renderedFilms = this._cardsCount;
     this._cardsExtraCount = CARDS_EXTRA_COUNT;
@@ -158,7 +159,7 @@ export default class MovieList {
 
   _renderFilmCardElements(container, movies) {
     movies.map((movie) => {
-      const filmComponent = new MoviePresenter(container, this._popupComponent, this._handleViewAction);
+      const filmComponent = new MoviePresenter(container, this._popupComponent, this._handleViewAction, this._api);
       filmComponent.init(movie);
       this._allMoviesPresenters.set(movie.id, filmComponent);
     });
@@ -300,6 +301,7 @@ export default class MovieList {
       this._moviesSortComponent.updateData({sortTypeSelected: this._sortTypeSelected});
 
       this._clearAllMoviesList();
+      this._renderedFilms = this._cardsCount;
       this._renderMoviesListAll();
     }
   }

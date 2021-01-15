@@ -6,7 +6,7 @@ import {FilmsCollection} from "../const";
 dayjs.extend(durationDayjs);
 
 const DESCRIPTION_MAX_LENGTH = 140;
-const DESCRIPTION_LAST_ITEM = `...`;
+const DESCRIPTION_LAST_ITEM = `…`;
 
 const getCheckedDescription = (description) => {
   return description.length > DESCRIPTION_MAX_LENGTH ? (description.slice(0, DESCRIPTION_MAX_LENGTH - 2) + DESCRIPTION_LAST_ITEM) : description;

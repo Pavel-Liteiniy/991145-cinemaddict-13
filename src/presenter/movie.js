@@ -3,13 +3,14 @@ import {UserAction} from "../const";
 import MovieCardView from "../view/film-card";
 
 export default class Movie {
-  constructor(movieContainer, popupComponent, handleFilmChange) {
+  constructor(movieContainer, popupComponent, handleFilmChange, api) {
     this._bodyElement = document.querySelector(`body`);
     this._movieCardComponent = null;
 
     this._movieContainer = movieContainer;
     this._popupComponent = popupComponent;
     this._handleFilmChange = handleFilmChange;
+    this._api = api;
 
     this._movieCardClickHandler = this._movieCardClickHandler.bind(this);
     this._movieCardClickButtonHandler = this._movieCardClickButtonHandler.bind(this);
@@ -56,14 +57,30 @@ export default class Movie {
       this._bodyElement.classList.remove(`hide-overflow`);
     }
 
-    this._popupComponent.setFilm(Object.assign({}, this._film));
-    this._popupComponent.setClickHandler(this._popupClickHandler);
-    this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
-    this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
-    this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
-    this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
+    this._api.getComments(this._film)
+      .then((comments) => {
+        this._popupComponent.setFilm(Object.assign({}, this._film, {comments}));
 
-    render(this._bodyElement, this._popupComponent);
+        this._popupComponent.setClickHandler(this._popupClickHandler);
+        this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
+        this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
+        this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
+        this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
+
+        render(this._bodyElement, this._popupComponent);
+      })
+      .catch(() => {
+        this._popupComponent.setFilm(Object.assign({}, this._film, {comments: []}));
+
+        this._popupComponent.setClickHandler(this._popupClickHandler);
+        this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
+        this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
+        this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
+        this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
+
+        render(this._bodyElement, this._popupComponent);
+      });
+
     this._bodyElement.classList.add(`hide-overflow`);
   }
 

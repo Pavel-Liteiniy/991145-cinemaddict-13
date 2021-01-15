@@ -31,27 +31,13 @@ const menuPresenter = new MenuPresenter(siteMainElement, moviesModel, filterMode
 
 api.getMovies()
   .then((movies) => {
+    moviesModel.setMovies(UpdateType.INIT, movies);
+    render(siteFooterStatisticElement, new MoviesSummaryView(movies));
 
-    movies = movies.map((movie) => {
-      return api.getComments(movie)
-        .then((comments) => {
-          return Object.assign({}, movie, {comments});
-        });
-    });
+    userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
+    render(siteHeaderElement, userRankComponent);
 
-    Promise.all(movies)
-    .then((films) => {
-      moviesModel.setMovies(UpdateType.INIT, films);
-      render(siteFooterStatisticElement, new MoviesSummaryView(films));
-
-      userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
-      render(siteHeaderElement, userRankComponent);
-
-      menuPresenter.init();
-    })
-    .catch(() => {
-      throw new Error(`Can't get comments for all or someone of the films`);
-    });
+    menuPresenter.init();
   })
   .catch(() => {
     moviesModel.setMovies(UpdateType.INIT, []);
@@ -87,5 +73,5 @@ moviesModel.addObserver(handleUserRankChange);
 
 menuPresenter.init();
 
-const movieListPresenter = new MovieListPresenter(siteMainElement, moviesModel, filterModel);
+const movieListPresenter = new MovieListPresenter(siteMainElement, moviesModel, filterModel, api);
 movieListPresenter.init();
