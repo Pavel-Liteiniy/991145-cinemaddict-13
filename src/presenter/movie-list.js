@@ -245,7 +245,11 @@ export default class MovieList {
           });
         break;
       case UserAction.DELETE_COMMENT:
-        this._moviesModel.updateMovie(UpdateType.PATCH, update);
+        this._api.deleteComment(update.deletedComment)
+          .then(() => {
+            update.movie.comments.splice(update.deletedCommentIndex, 1);
+            this._moviesModel.updateMovie(UpdateType.PATCH, update.movie);
+          });
         break;
     }
   }

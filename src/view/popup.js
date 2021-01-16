@@ -248,9 +248,8 @@ export default class Popup extends SmartView {
         return comment.author === evt.target.dataset.author;
       });
 
-      this._data.comments.splice(commentIndex, 1);
       this._scrollTop = this.getElement().scrollTop;
-      this._callback.clickDeleteCommentButton(this._data);
+      this._callback.clickDeleteCommentButton({movie: this._data, deletedComment: this._data.comments[commentIndex], deletedCommentIndex: commentIndex});
     }
   }
 
@@ -316,7 +315,6 @@ export default class Popup extends SmartView {
       this._data.comments.push({
         message,
         emoji,
-        // author: `author`,
         date: dayjs()
       });
       this._emojiSelected = {};
