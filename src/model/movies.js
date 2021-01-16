@@ -65,7 +65,7 @@ export default class Movies extends Observer {
           description: movie.film_info.description,
           date: movie.film_info.release.date,
           country: movie.film_info.release.release_country,
-          viewDate: movie.film_info.watching_date,
+          viewDate: movie.user_details.watching_date,
           duration: movie.film_info.runtime,
           rating: movie.film_info.total_rating,
           inWatchListCollection: movie.user_details.watchlist,
@@ -86,13 +86,19 @@ export default class Movies extends Observer {
   }
 
   static adaptMovieToServer(movie) {
+    let adaptedComments = [];
+
+    if (movie.comments.length > 0 && movie.comments[0] === Object(movie.comments[0])) {
+      adaptedComments = movie.comments.map((comment) => {
+        return comment.id;
+      });
+    }
+
     const adaptedMovie = Object.assign(
         {},
         movie,
         {
-          "comments": movie.comments.map((comment) => {
-            return comment.id;
-          }),
+          "comments": adaptedComments,
           "film_info": {
             "title": movie.title,
             "alternative_title": movie.alternativeTitle,
@@ -119,24 +125,23 @@ export default class Movies extends Observer {
         }
     );
 
-    delete movie.comments;
-    delete movie.title;
-    delete movie.alternativeTitle;
-    delete movie.rating;
-    delete movie.poster;
-    delete movie.ageRating;
-    delete movie.director;
-    delete movie.writers;
-    delete movie.actors;
-    delete movie.date;
-    delete movie.country;
-    delete movie.duration;
-    delete movie.genre;
-    delete movie.description;
-    delete movie.inWatchListCollection;
-    delete movie.inWatchedCollection;
-    delete movie.viewDate;
-    delete movie.inFavoriteCollection;
+    delete adaptedMovie.title;
+    delete adaptedMovie.alternativeTitle;
+    delete adaptedMovie.rating;
+    delete adaptedMovie.poster;
+    delete adaptedMovie.ageRating;
+    delete adaptedMovie.director;
+    delete adaptedMovie.writers;
+    delete adaptedMovie.actors;
+    delete adaptedMovie.date;
+    delete adaptedMovie.country;
+    delete adaptedMovie.duration;
+    delete adaptedMovie.genre;
+    delete adaptedMovie.description;
+    delete adaptedMovie.inWatchListCollection;
+    delete adaptedMovie.inWatchedCollection;
+    delete adaptedMovie.viewDate;
+    delete adaptedMovie.inFavoriteCollection;
 
     return adaptedMovie;
   }
@@ -151,10 +156,35 @@ export default class Movies extends Observer {
         }
     );
 
-    delete comment.comment;
-    delete comment.emotion;
+    delete adaptedComment.comment;
+    delete adaptedComment.emotion;
 
     return adaptedComment;
+  }
+
+  static adaptMovieWithCommentsToClient({comments, movie}) {
+
+    let adaptedComments = comments.map((comment) => {
+      return {
+        id: comment.id,
+        author: comment.author,
+        message: comment.comment,
+        emoji: comment.emotion,
+        date: comment.date,
+      };
+    });
+
+    let adaptedMovie = Movies.adaptMovieToClient(movie);
+
+    const adaptedMovieWithComments = Object.assign(
+        {},
+        adaptedMovie,
+        {comments: adaptedComments});
+
+    delete adaptedMovieWithComments.comment;
+    delete adaptedMovieWithComments.emotion;
+
+    return adaptedMovieWithComments;
   }
 
   static adaptCommentToServer(comment) {
@@ -167,8 +197,8 @@ export default class Movies extends Observer {
         }
     );
 
-    delete comment.message;
-    delete comment.emoji;
+    delete adaptedComment.message;
+    delete adaptedComment.emoji;
 
     return adaptedComment;
   }

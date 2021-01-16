@@ -316,7 +316,7 @@ export default class Popup extends SmartView {
       this._data.comments.push({
         message,
         emoji,
-        author: `author`,
+        // author: `author`,
         date: dayjs()
       });
       this._emojiSelected = {};

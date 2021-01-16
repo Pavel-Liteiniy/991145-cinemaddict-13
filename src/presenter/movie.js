@@ -40,6 +40,11 @@ export default class Movie {
     }
 
     remove(prevMovieCardComponent);
+
+    if (this._popupComponent.getFilm().id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
+      this._popupComponent.updateData(this._film);
+      this._popupComponent.updateScrollTop();
+    }
   }
 
   destroy() {
@@ -47,7 +52,7 @@ export default class Movie {
   }
 
   _movieCardClickHandler() {
-    if (this._popupComponent.getFilm() === this._film && this._bodyElement.contains(this._popupComponent.getElement())) {
+    if (this._popupComponent.getFilm().id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
       return;
     }
 
@@ -100,8 +105,8 @@ export default class Movie {
   }
 
   _popupSubmitCommentHandler(film) {
-    this._popupComponent.updateData(film);
-    this._popupComponent.updateScrollTop();
+    // this._popupComponent.updateData(film);
+    // this._popupComponent.updateScrollTop();
     this._handleFilmChange(UserAction.ADD_COMMENT, film);
   }
 
