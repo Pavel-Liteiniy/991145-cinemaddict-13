@@ -41,9 +41,11 @@ export default class Movie {
 
     remove(prevMovieCardComponent);
 
-    if (this._popupComponent.getFilm().id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
-      this._popupComponent.updateData(this._film);
-      this._popupComponent.updateScrollTop();
+    if (this._popupComponent.film.id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
+      this._api.getComments(this._film)
+      .then((comments) => {
+        this._popupComponent.updateData(Object.assign({}, this._film, {comments}));
+      });
     }
   }
 
@@ -52,11 +54,11 @@ export default class Movie {
   }
 
   _movieCardClickHandler() {
-    if (this._popupComponent.getFilm().id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
+    if (this._popupComponent.film.id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
       return;
     }
 
-    if (Object.keys(this._popupComponent.getFilm()).length !== 0) {
+    if (Object.keys(this._popupComponent.film).length !== 0) {
       this._popupComponent.removeEscKeyDownHandler();
       remove(this._popupComponent);
       this._bodyElement.classList.remove(`hide-overflow`);
@@ -64,7 +66,7 @@ export default class Movie {
 
     this._api.getComments(this._film)
       .then((comments) => {
-        this._popupComponent.setFilm(Object.assign({}, this._film, {comments}));
+        this._popupComponent.film = Object.assign({}, this._film, {comments});
 
         this._popupComponent.setClickHandler(this._popupClickHandler);
         this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
@@ -75,7 +77,7 @@ export default class Movie {
         render(this._bodyElement, this._popupComponent);
       })
       .catch(() => {
-        this._popupComponent.setFilm(Object.assign({}, this._film, {comments: []}));
+        this._popupComponent.film = Object.assign({}, this._film, {comments: []});
 
         this._popupComponent.setClickHandler(this._popupClickHandler);
         this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);

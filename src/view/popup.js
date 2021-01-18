@@ -206,13 +206,12 @@ export default class Popup extends SmartView {
     this._submitCommentHandler = this._submitCommentHandler.bind(this);
   }
 
-  setFilm(film) {
+  set film(film) {
     this._data = film;
-    // this._isEmojiChecked = false;
     this._setInnerHandlers();
   }
 
-  getFilm() {
+  get film() {
     return this._data;
   }
 
@@ -222,6 +221,20 @@ export default class Popup extends SmartView {
 
   updateScrollTop() {
     this.getElement().scrollTop = this._scrollTop;
+  }
+
+  updateElement() {
+    let prevElement = this.getElement();
+    this._scrollTop = prevElement.scrollTop;
+    const parent = prevElement.parentElement;
+    this.removeElement();
+
+    const newElement = this.getElement();
+
+    parent.replaceChild(newElement, prevElement);
+
+    this.restoreHandlers();
+    this.updateScrollTop();
   }
 
   setClickHandler(callback) {
