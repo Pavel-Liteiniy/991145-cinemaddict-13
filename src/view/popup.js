@@ -57,11 +57,21 @@ const createComments = (comments) => {
   return commentsList;
 };
 
+const createGenres = (genres) => {
+  let genresList = [];
+
+  genresList = genres.map((genre) => {
+    return `<span class="film-details__genre">${genre}</span>`;
+  });
+
+  return genresList;
+};
+
 const createEmojiImage = ({VALUE: value = ``, URL: url = ``, ALT: alt = ``}) => {
   return value ? `<img src="${url}" width="50" height="50" alt="${alt}">` : ``;
 };
 
-const createPopup = ({title, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}, emojiSelected = {}) => {
+const createPopup = ({title, genre, poster, description, date, country, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection, alternativeTitle, ageRating, director, writers, actors}, emojiSelected = {}) => {
   const durationHours = dayjs.duration(duration, `minutes`).hours();
   const durationMinutes = dayjs.duration(duration, `minutes`).minutes();
 
@@ -73,34 +83,34 @@ const createPopup = ({title, poster, description, date, duration, comments, rati
       </div>
       <div class="film-details__info-wrap">
         <div class="film-details__poster">
-          <img class="film-details__poster-img" src="./images/posters/${poster}" alt="${title}">
-          <p class="film-details__age">18+</p>
+          <img class="film-details__poster-img" src="${poster}" alt="${title}">
+          <p class="film-details__age">${ageRating}+</p>
         </div>
 
         <div class="film-details__info">
           <div class="film-details__info-head">
             <div class="film-details__title-wrap">
               <h3 class="film-details__title">${title}</h3>
-              <p class="film-details__title-original">Original: The Great Flamarion</p>
+              <p class="film-details__title-original">Original: ${alternativeTitle}</p>
             </div>
 
             <div class="film-details__rating">
-              <p class="film-details__total-rating">${Math.trunc(rating / 10)}.${rating % 10}</p>
+              <p class="film-details__total-rating">${rating}</p>
             </div>
           </div>
 
           <table class="film-details__table">
             <tr class="film-details__row">
               <td class="film-details__term">Director</td>
-              <td class="film-details__cell">Anthony Mann</td>
+              <td class="film-details__cell">${director}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Writers</td>
-              <td class="film-details__cell">Anne Wigton, Heinz Herald, Richard Weil</td>
+              <td class="film-details__cell">${writers.join(`, `)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Actors</td>
-              <td class="film-details__cell">Erich von Stroheim, Mary Beth Hughes, Dan Duryea</td>
+              <td class="film-details__cell">${actors.join(`, `)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
@@ -112,14 +122,13 @@ const createPopup = ({title, poster, description, date, duration, comments, rati
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
-              <td class="film-details__cell">USA</td>
+              <td class="film-details__cell">${country}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">Genres</td>
+              <td class="film-details__term">${genre.length > 1 ? `Genres` : `Genre`}</td>
               <td class="film-details__cell">
-                <span class="film-details__genre">Drama</span>
-                <span class="film-details__genre">Film-Noir</span>
-                <span class="film-details__genre">Mystery</span></td>
+                ${createGenres(genre).join(``)}
+              </td>
             </tr>
           </table>
 
@@ -197,12 +206,12 @@ export default class Popup extends SmartView {
     this._submitCommentHandler = this._submitCommentHandler.bind(this);
   }
 
-  setFilm(film) {
+  set film(film) {
     this._data = film;
     this._setInnerHandlers();
   }
 
-  getFilm() {
+  get film() {
     return this._data;
   }
 
@@ -212,6 +221,20 @@ export default class Popup extends SmartView {
 
   updateScrollTop() {
     this.getElement().scrollTop = this._scrollTop;
+  }
+
+  updateElement() {
+    let prevElement = this.getElement();
+    this._scrollTop = prevElement.scrollTop;
+    const parent = prevElement.parentElement;
+    this.removeElement();
+
+    const newElement = this.getElement();
+
+    parent.replaceChild(newElement, prevElement);
+
+    this.restoreHandlers();
+    this.updateScrollTop();
   }
 
   setClickHandler(callback) {
@@ -234,14 +257,16 @@ export default class Popup extends SmartView {
   _clickDeleteCommentButtonHandler(evt) {
     if (evt.target.classList.contains(`film-details__comment-delete`)) {
       evt.preventDefault();
+      this._deletinigCommentButtonElement = evt.target;
+      this._deletinigCommentButtonElement.disabled = true;
+      this._deletinigCommentButtonElement.textContent = `Deleting...`;
 
       const commentIndex = this._data.comments.findIndex((comment) => {
-        return comment.author === evt.target.dataset.author;
+        return comment.author === this._deletinigCommentButtonElement.dataset.author;
       });
 
-      this._data.comments.splice(commentIndex, 1);
       this._scrollTop = this.getElement().scrollTop;
-      this._callback.clickDeleteCommentButton(this._data);
+      this._callback.clickDeleteCommentButton({movie: this._data, deletedComment: this._data.comments[commentIndex], deletedCommentIndex: commentIndex});
     }
   }
 
@@ -299,15 +324,25 @@ export default class Popup extends SmartView {
   }
 
   _submitCommentHandler(evt) {
-    const message = this.getElement().querySelector(`.film-details__comment-input`).value;
+    this._messageElement = this.getElement().querySelector(`.film-details__comment-input`);
+
+    const message = this._messageElement.value;
     const emoji = this._emojiSelected.VALUE;
-    if (evt.ctrlKey && evt.key === KEY_ENTER && message && emoji) {
+
+    this._emojiElements = this.getElement().querySelectorAll(`.film-details__emoji-item`);
+
+    if (evt.ctrlKey && evt.key === KEY_ENTER && message && this._isEmojiChecked()) {
       evt.preventDefault();
+
+      this._messageElement.disabled = true;
+      Array.from(this._emojiElements).forEach((emojiButton) => {
+        emojiButton.disabled = true;
+      });
+
       this._scrollTop = this.getElement().scrollTop;
       this._data.comments.push({
         message,
         emoji,
-        author: `author`,
         date: dayjs()
       });
       this._emojiSelected = {};
@@ -329,6 +364,20 @@ export default class Popup extends SmartView {
     if (Object.keys(this._data).length !== 0) {
       this.getElement().querySelector(`.film-details__emoji-list`).addEventListener(`change`, this._changeEmojiHandler);
     }
+  }
+
+  _isEmojiChecked() {
+    let isChecked = false;
+
+    Array.from(this._emojiElements).some((emojiButton) => {
+      if (emojiButton.checked) {
+        isChecked = true;
+      }
+
+      return isChecked;
+    });
+
+    return isChecked;
   }
 
   _changeEmojiHandler(evt) {
@@ -360,5 +409,18 @@ export default class Popup extends SmartView {
       this.getElement().querySelector(`.film-details__comment-input`).value = message;
       this.updateScrollTop();
     }
+  }
+
+  enableSubmitting() {
+    this._messageElement.disabled = false;
+
+    Array.from(this._emojiElements).forEach((emojiButton) => {
+      emojiButton.disabled = false;
+    });
+  }
+
+  enableDeleting() {
+    this._deletinigCommentButtonElement.disabled = false;
+    this._deletinigCommentButtonElement.textContent = `Delete`;
   }
 }

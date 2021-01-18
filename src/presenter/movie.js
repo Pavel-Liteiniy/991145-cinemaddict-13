@@ -3,13 +3,14 @@ import {UserAction} from "../const";
 import MovieCardView from "../view/film-card";
 
 export default class Movie {
-  constructor(movieContainer, popupComponent, handleFilmChange) {
+  constructor(movieContainer, popupComponent, handleFilmChange, api) {
     this._bodyElement = document.querySelector(`body`);
     this._movieCardComponent = null;
 
     this._movieContainer = movieContainer;
     this._popupComponent = popupComponent;
     this._handleFilmChange = handleFilmChange;
+    this._api = api;
 
     this._movieCardClickHandler = this._movieCardClickHandler.bind(this);
     this._movieCardClickButtonHandler = this._movieCardClickButtonHandler.bind(this);
@@ -39,6 +40,13 @@ export default class Movie {
     }
 
     remove(prevMovieCardComponent);
+
+    if (this._popupComponent.film.id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
+      this._api.getComments(this._film)
+      .then((comments) => {
+        this._popupComponent.updateData(Object.assign({}, this._film, {comments}));
+      });
+    }
   }
 
   destroy() {
@@ -46,24 +54,40 @@ export default class Movie {
   }
 
   _movieCardClickHandler() {
-    if (this._popupComponent.getFilm() === this._film && this._bodyElement.contains(this._popupComponent.getElement())) {
+    if (this._popupComponent.film.id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
       return;
     }
 
-    if (Object.keys(this._popupComponent.getFilm()).length !== 0) {
+    if (Object.keys(this._popupComponent.film).length !== 0) {
       this._popupComponent.removeEscKeyDownHandler();
       remove(this._popupComponent);
       this._bodyElement.classList.remove(`hide-overflow`);
     }
 
-    this._popupComponent.setFilm(Object.assign({}, this._film));
-    this._popupComponent.setClickHandler(this._popupClickHandler);
-    this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
-    this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
-    this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
-    this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
+    this._api.getComments(this._film)
+      .then((comments) => {
+        this._popupComponent.film = Object.assign({}, this._film, {comments});
 
-    render(this._bodyElement, this._popupComponent);
+        this._popupComponent.setClickHandler(this._popupClickHandler);
+        this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
+        this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
+        this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
+        this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
+
+        render(this._bodyElement, this._popupComponent);
+      })
+      .catch(() => {
+        this._popupComponent.film = Object.assign({}, this._film, {comments: []});
+
+        this._popupComponent.setClickHandler(this._popupClickHandler);
+        this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
+        this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
+        this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
+        this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
+
+        render(this._bodyElement, this._popupComponent);
+      });
+
     this._bodyElement.classList.add(`hide-overflow`);
   }
 
@@ -83,14 +107,10 @@ export default class Movie {
   }
 
   _popupSubmitCommentHandler(film) {
-    this._popupComponent.updateData(film);
-    this._popupComponent.updateScrollTop();
     this._handleFilmChange(UserAction.ADD_COMMENT, film);
   }
 
   _popupClickDeleteCommentButtonHandler(film) {
-    this._popupComponent.updateData(film);
-    this._popupComponent.updateScrollTop();
     this._handleFilmChange(UserAction.DELETE_COMMENT, film);
   }
 

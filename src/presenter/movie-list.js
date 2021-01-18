@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import {SortType, UserAction, UpdateType, FilterType} from "../const";
 import {remove, render, replace} from "../utils/render";
 import FilmsWrapperView from "../view/films-wrapper";
@@ -17,10 +18,11 @@ const TypeExtraFilms = {
 };
 
 export default class MovieList {
-  constructor(filmsContainer, moviesModel, filterModel) {
+  constructor(filmsContainer, moviesModel, filterModel, api) {
     this._filmsContainer = filmsContainer;
     this._moviesModel = moviesModel;
     this._filterModel = filterModel;
+    this._api = api;
     this._cardsCount = CARDS_COUNT;
     this._renderedFilms = this._cardsCount;
     this._cardsExtraCount = CARDS_EXTRA_COUNT;
@@ -29,6 +31,7 @@ export default class MovieList {
     this._topRatedMoviesPresenters = new Map();
     this._mostCommentedMoviesPresenters = new Map();
 
+    this._isLoading = true;
     this._topRatedFilms = [];
     this._mostCommentedFilms = [];
     this._filterSelected = FilterType.ALL;
@@ -104,7 +107,7 @@ export default class MovieList {
         break;
       case SortType.BY_DATE:
         movies.sort(({date: a}, {date: b}) => {
-          return b - a;
+          return dayjs(b).diff(dayjs(a));
         });
         break;
     }
@@ -117,6 +120,7 @@ export default class MovieList {
 
     this._filmsCatalogComponent = new FilmsCatalogView();
     this._filmsCatalogComponent.setFilms(this._getMovies());
+    this._filmsCatalogComponent.setLoadingStatus(this._isLoading);
     this._filmsCardContainer = this._filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
 
     if (prevFilmsCatalogComponent === null) {
@@ -146,13 +150,16 @@ export default class MovieList {
   }
 
   _renderMovieListsExtra() {
-    this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.TOP_RATED);
-    this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.MOST_COMMENTED);
+    const movies = this._moviesModel.getMovies().slice();
+    if (movies.length > 0) {
+      this._createExtraFilmsElement(movies, this._typeExtraFilms.TOP_RATED);
+      this._createExtraFilmsElement(movies, this._typeExtraFilms.MOST_COMMENTED);
+    }
   }
 
   _renderFilmCardElements(container, movies) {
     movies.map((movie) => {
-      const filmComponent = new MoviePresenter(container, this._popupComponent, this._handleViewAction);
+      const filmComponent = new MoviePresenter(container, this._popupComponent, this._handleViewAction, this._api);
       filmComponent.init(movie);
       this._allMoviesPresenters.set(movie.id, filmComponent);
     });
@@ -188,7 +195,7 @@ export default class MovieList {
 
     if (componentFilmsContainer) {
       movies.map((movie) => {
-        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction);
+        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction, this._api);
         filmComponent.init(movie);
         this._topRatedMoviesPresenters.set(movie.id, filmComponent);
       });
@@ -201,7 +208,7 @@ export default class MovieList {
 
     if (componentFilmsContainer) {
       movies.map((movie) => {
-        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction);
+        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction, this._api);
         filmComponent.init(movie);
         this._mostCommentedMoviesPresenters.set(movie.id, filmComponent);
       });
@@ -226,14 +233,34 @@ export default class MovieList {
   _handleViewAction(userAction, update) {
     switch (userAction) {
       case UserAction.UPDATE_MOVIE:
-        this._moviesModel.updateMovie(UpdateType.MINOR, update);
+        this._api.updateMovie(update)
+          .then((response) => {
+            this._moviesModel.updateMovie(UpdateType.MINOR, response);
+          });
         break;
       case UserAction.ADD_COMMENT:
+        this._api.addComment(update)
+          .then((response) => {
+            this._moviesModel.updateMovie(UpdateType.PATCH, response);
+          })
+          .catch(() => {
+            update.comments.pop();
+            this._popupComponent.shake();
+            this._popupComponent.enableSubmitting();
+          });
+        break;
       case UserAction.DELETE_COMMENT:
-        this._moviesModel.updateMovie(UpdateType.PATCH, update);
+        this._api.deleteComment(update.deletedComment)
+          .then(() => {
+            update.movie.comments.splice(update.deletedCommentIndex, 1);
+            this._moviesModel.updateMovie(UpdateType.PATCH, update.movie);
+          })
+          .catch(() => {
+            this._popupComponent.shake();
+            this._popupComponent.enableDeleting();
+          });
         break;
     }
-
   }
 
   _handleModelEvent(updateType, data) {
@@ -281,6 +308,10 @@ export default class MovieList {
           this.init();
         }
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        this.init();
+        break;
     }
   }
 
@@ -290,6 +321,7 @@ export default class MovieList {
       this._moviesSortComponent.updateData({sortTypeSelected: this._sortTypeSelected});
 
       this._clearAllMoviesList();
+      this._renderedFilms = this._cardsCount;
       this._renderMoviesListAll();
     }
   }
