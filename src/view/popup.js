@@ -208,6 +208,7 @@ export default class Popup extends SmartView {
 
   setFilm(film) {
     this._data = film;
+    // this._isEmojiChecked = false;
     this._setInnerHandlers();
   }
 
@@ -243,9 +244,12 @@ export default class Popup extends SmartView {
   _clickDeleteCommentButtonHandler(evt) {
     if (evt.target.classList.contains(`film-details__comment-delete`)) {
       evt.preventDefault();
+      this._deletinigCommentButtonElement = evt.target;
+      this._deletinigCommentButtonElement.disabled = true;
+      this._deletinigCommentButtonElement.textContent = `Deleting...`;
 
       const commentIndex = this._data.comments.findIndex((comment) => {
-        return comment.author === evt.target.dataset.author;
+        return comment.author === this._deletinigCommentButtonElement.dataset.author;
       });
 
       this._scrollTop = this.getElement().scrollTop;
@@ -307,10 +311,21 @@ export default class Popup extends SmartView {
   }
 
   _submitCommentHandler(evt) {
-    const message = this.getElement().querySelector(`.film-details__comment-input`).value;
+    this._messageElement = this.getElement().querySelector(`.film-details__comment-input`);
+
+    const message = this._messageElement.value;
     const emoji = this._emojiSelected.VALUE;
-    if (evt.ctrlKey && evt.key === KEY_ENTER && message && emoji) {
+
+    this._emojiElements = this.getElement().querySelectorAll(`.film-details__emoji-item`);
+
+    if (evt.ctrlKey && evt.key === KEY_ENTER && message && this._isEmojiChecked()) {
       evt.preventDefault();
+
+      this._messageElement.disabled = true;
+      Array.from(this._emojiElements).forEach((emojiButton) => {
+        emojiButton.disabled = true;
+      });
+
       this._scrollTop = this.getElement().scrollTop;
       this._data.comments.push({
         message,
@@ -336,6 +351,20 @@ export default class Popup extends SmartView {
     if (Object.keys(this._data).length !== 0) {
       this.getElement().querySelector(`.film-details__emoji-list`).addEventListener(`change`, this._changeEmojiHandler);
     }
+  }
+
+  _isEmojiChecked() {
+    let isChecked = false;
+
+    Array.from(this._emojiElements).some((emojiButton) => {
+      if (emojiButton.checked) {
+        isChecked = true;
+      }
+
+      return isChecked;
+    });
+
+    return isChecked;
   }
 
   _changeEmojiHandler(evt) {
@@ -367,5 +396,18 @@ export default class Popup extends SmartView {
       this.getElement().querySelector(`.film-details__comment-input`).value = message;
       this.updateScrollTop();
     }
+  }
+
+  enableSubmitting() {
+    this._messageElement.disabled = false;
+
+    Array.from(this._emojiElements).forEach((emojiButton) => {
+      emojiButton.disabled = false;
+    });
+  }
+
+  enableDeleting() {
+    this._deletinigCommentButtonElement.disabled = false;
+    this._deletinigCommentButtonElement.textContent = `Delete`;
   }
 }

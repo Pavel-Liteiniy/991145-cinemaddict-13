@@ -195,7 +195,7 @@ export default class MovieList {
 
     if (componentFilmsContainer) {
       movies.map((movie) => {
-        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction);
+        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction, this._api);
         filmComponent.init(movie);
         this._topRatedMoviesPresenters.set(movie.id, filmComponent);
       });
@@ -208,7 +208,7 @@ export default class MovieList {
 
     if (componentFilmsContainer) {
       movies.map((movie) => {
-        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction);
+        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction, this._api);
         filmComponent.init(movie);
         this._mostCommentedMoviesPresenters.set(movie.id, filmComponent);
       });
@@ -242,6 +242,11 @@ export default class MovieList {
         this._api.addComment(update)
           .then((response) => {
             this._moviesModel.updateMovie(UpdateType.PATCH, response);
+          })
+          .catch(() => {
+            update.comments.pop();
+            this._popupComponent.shake();
+            this._popupComponent.enableSubmitting();
           });
         break;
       case UserAction.DELETE_COMMENT:
@@ -249,6 +254,10 @@ export default class MovieList {
           .then(() => {
             update.movie.comments.splice(update.deletedCommentIndex, 1);
             this._moviesModel.updateMovie(UpdateType.PATCH, update.movie);
+          })
+          .catch(() => {
+            this._popupComponent.shake();
+            this._popupComponent.enableDeleting();
           });
         break;
     }

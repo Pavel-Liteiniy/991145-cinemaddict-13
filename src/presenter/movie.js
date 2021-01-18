@@ -105,14 +105,10 @@ export default class Movie {
   }
 
   _popupSubmitCommentHandler(film) {
-    // this._popupComponent.updateData(film);
-    // this._popupComponent.updateScrollTop();
     this._handleFilmChange(UserAction.ADD_COMMENT, film);
   }
 
   _popupClickDeleteCommentButtonHandler(film) {
-    this._popupComponent.updateData(film);
-    this._popupComponent.updateScrollTop();
     this._handleFilmChange(UserAction.DELETE_COMMENT, film);
   }
 
