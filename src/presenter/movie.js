@@ -70,9 +70,7 @@ export default class Movie {
 
         this._popupComponent.setClickHandler(this._popupClickHandler);
         this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
-        this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
         this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
-        this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
 
         render(this._bodyElement, this._popupComponent);
       })
@@ -81,12 +79,13 @@ export default class Movie {
 
         this._popupComponent.setClickHandler(this._popupClickHandler);
         this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
-        this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
         this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
-        this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
 
         render(this._bodyElement, this._popupComponent);
       });
+
+    this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
+    this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
 
     this._bodyElement.classList.add(`hide-overflow`);
   }
