@@ -75,3 +75,7 @@ menuPresenter.init();
 
 const movieListPresenter = new MovieListPresenter(siteMainElement, moviesModel, filterModel, api);
 movieListPresenter.init();
+
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/service-worker.js`);
+});
