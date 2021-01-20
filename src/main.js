@@ -1,5 +1,5 @@
 import {FilterType, UpdateType} from "./const";
-import Api from "./api";
+import Api from "./api/api";
 import {remove, render} from "./utils/render";
 import UserRankView from "./view/user-rank";
 import StatisticView from "./view/statistic";

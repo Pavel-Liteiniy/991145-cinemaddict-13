@@ -1,4 +1,4 @@
-import MoviesModel from "./model/movies";
+import MoviesModel from "../model/movies";
 
 const Method = {
   GET: `GET`,
@@ -57,6 +57,16 @@ export default class Api {
       url: `comments/${comment.id}`,
       method: Method.DELETE,
     });
+  }
+
+  sync(data) {
+    return this._load({
+      url: `tasks/sync`,
+      method: Method.POST,
+      body: JSON.stringify(data),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(Api.toJSON);
   }
 
   _load({
