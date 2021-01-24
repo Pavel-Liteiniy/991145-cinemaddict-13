@@ -92,6 +92,8 @@ export default class Movies extends Observer {
       adaptedComments = movie.comments.map((comment) => {
         return comment.id;
       });
+    } else {
+      adaptedComments = movie.comments;
     }
 
     const adaptedMovie = Object.assign(

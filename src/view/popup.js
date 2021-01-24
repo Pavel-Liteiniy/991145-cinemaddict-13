@@ -340,13 +340,8 @@ export default class Popup extends SmartView {
       });
 
       this._scrollTop = this.getElement().scrollTop;
-      this._data.comments.push({
-        message,
-        emoji,
-        date: dayjs()
-      });
       this._emojiSelected = {};
-      this._callback.submitComment(this._data);
+      this._callback.submitComment({movie: this._data, newComment: {message, emoji, date: dayjs()}});
     }
   }
 

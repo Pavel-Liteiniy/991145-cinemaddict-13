@@ -244,7 +244,6 @@ export default class MovieList {
             this._moviesModel.updateMovie(UpdateType.PATCH, response);
           })
           .catch(() => {
-            update.comments.pop();
             this._popupComponent.shake();
             this._popupComponent.enableSubmitting();
           });

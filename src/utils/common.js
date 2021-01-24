@@ -44,3 +44,7 @@ export const getRank = (watchedFilmsCount) => {
 
   return userRank;
 };
+
+export const isOnline = () => {
+  return window.navigator.onLine;
+};
