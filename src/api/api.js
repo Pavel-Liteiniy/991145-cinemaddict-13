@@ -41,11 +41,11 @@ export default class Api {
       .then((comments) => comments.map(MoviesModel.adaptCommentToClient));
   }
 
-  addComment(movie) {
+  addComment({movie, newComment}) {
     return this._load({
       url: `comments/${movie.id}`,
       method: Method.POST,
-      body: JSON.stringify(MoviesModel.adaptCommentToServer(movie.comments[movie.comments.length - 1])),
+      body: JSON.stringify(MoviesModel.adaptCommentToServer(newComment)),
       headers: new Headers({"Content-Type": `application/json`})
     })
       .then(Api.toJSON)
@@ -61,7 +61,7 @@ export default class Api {
 
   sync(data) {
     return this._load({
-      url: `tasks/sync`,
+      url: `movies/sync`,
       method: Method.POST,
       body: JSON.stringify(data),
       headers: new Headers({"Content-Type": `application/json`})

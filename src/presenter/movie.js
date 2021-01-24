@@ -1,4 +1,6 @@
 import {remove, render, replace} from "../utils/render";
+import {isOnline} from "../utils/common.js";
+import {toast} from "../utils/toast/toast.js";
 import {UserAction} from "../const";
 import MovieCardView from "../view/film-card";
 
@@ -42,10 +44,7 @@ export default class Movie {
     remove(prevMovieCardComponent);
 
     if (this._popupComponent.film.id === this._film.id && this._bodyElement.contains(this._popupComponent.getElement())) {
-      this._api.getComments(this._film)
-      .then((comments) => {
-        this._popupComponent.updateData(Object.assign({}, this._film, {comments}));
-      });
+      this._popupComponent.updateData(this._film);
     }
   }
 
@@ -106,10 +105,22 @@ export default class Movie {
   }
 
   _popupSubmitCommentHandler(film) {
+    if (!isOnline()) {
+      toast(`You can't add new comment offline`);
+      this._popupComponent.enableSubmitting();
+      return;
+    }
+
     this._handleFilmChange(UserAction.ADD_COMMENT, film);
   }
 
   _popupClickDeleteCommentButtonHandler(film) {
+    if (!isOnline()) {
+      toast(`You can't add delete comment offline`);
+      this._popupComponent.enableDeleting();
+      return;
+    }
+
     this._handleFilmChange(UserAction.DELETE_COMMENT, film);
   }
 

@@ -41,13 +41,12 @@ export default class Provider {
       return this._api.getComments(movie)
         .then((comments) => {
           const items = createStoreStructure(comments.map(MoviesModel.adaptCommentToServer));
-          this._commentsStore.setItems(items);
+          this._commentsStore.setItem(movie.id, items);
           return comments;
         });
     }
 
-    const storeComments = Object.values(this._commentsStore.getItems());
-
+    const storeComments = Object.values(this._commentsStore.getItems()[movie.id] || {});
     return Promise.resolve(storeComments.map(MoviesModel.adaptCommentToClient));
   }
 
@@ -92,10 +91,9 @@ export default class Provider {
 
       return this._api.sync(storeMovies)
         .then((response) => {
-          const createdMovies = getSyncedMovies(response.created);
           const updatedMovies = getSyncedMovies(response.updated);
 
-          const items = createStoreStructure([...createdMovies, ...updatedMovies]);
+          const items = createStoreStructure([...updatedMovies]);
 
           this._moviesStore.setItems(items);
         });
