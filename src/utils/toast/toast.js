@@ -7,14 +7,14 @@ toastContainer.classList.add(`toast-container`);
 document.body.append(toastContainer);
 
 const toast = (message) => {
-  const toastItem = document.createElement(`div`);
-  toastItem.textContent = message;
-  toastItem.classList.add(`toast-item`);
+  const toastElement = document.createElement(`div`);
+  toastElement.textContent = message;
+  toastElement.classList.add(`toast-item`);
 
-  toastContainer.append(toastItem);
+  toastContainer.append(toastElement);
 
   setTimeout(() => {
-    toastItem.remove();
+    toastElement.remove();
   }, SHOW_TIME);
 };
 

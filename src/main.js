@@ -41,28 +41,14 @@ const moviesModel = new MoviesModel();
 const filterModel = new FilterModel();
 
 const menuPresenter = new MenuPresenter(siteMainElement, moviesModel, filterModel);
-
-apiWithProvider.getMovies()
-  .then((movies) => {
-    moviesModel.setMovies(UpdateType.INIT, movies);
-    render(siteFooterStatisticElement, new MoviesSummaryView(movies));
-
-    userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
-    render(siteHeaderElement, userRankComponent);
-
-    menuPresenter.init();
-  })
-  .catch(() => {
-    moviesModel.setMovies(UpdateType.INIT, []);
-    render(siteFooterStatisticElement, new MoviesSummaryView([]));
-  });
+const movieListPresenter = new MovieListPresenter(siteMainElement, moviesModel, filterModel, apiWithProvider);
 
 const handleMenuItemChange = (updateType, menuItem) => {
   if (updateType === UpdateType.MAJOR && prevMenuItemSelected !== menuItem) {
 
     if (menuItem === FilterType.DISABLED) {
       movieListPresenter.destroy();
-      statisticComponent.setFilms(moviesModel.getMovies().slice());
+      statisticComponent.films = moviesModel.collection.slice();
       render(siteMainElement, statisticComponent);
     }
 
@@ -81,12 +67,25 @@ const handleUserRankChange = () => {
   render(siteHeaderElement, userRankComponent);
 };
 
+apiWithProvider.getMovies()
+.then((movies) => {
+  moviesModel.collection = {updateType: UpdateType.INIT, movies};
+  render(siteFooterStatisticElement, new MoviesSummaryView(movies));
+
+  userRankComponent.setWatchedMoviesCount(moviesModel.getMovieCountInCollection().history);
+  render(siteHeaderElement, userRankComponent);
+
+  menuPresenter.init();
+})
+.catch(() => {
+  moviesModel.collection = {updateType: UpdateType.INIT, movies: []};
+  render(siteFooterStatisticElement, new MoviesSummaryView([]));
+});
+
 filterModel.addObserver(handleMenuItemChange);
 moviesModel.addObserver(handleUserRankChange);
 
 menuPresenter.init();
-
-const movieListPresenter = new MovieListPresenter(siteMainElement, moviesModel, filterModel, apiWithProvider);
 movieListPresenter.init();
 
 window.addEventListener(`load`, () => {

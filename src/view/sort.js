@@ -27,15 +27,15 @@ export default class MoviesSort extends SmartView {
     this.getElement().addEventListener(`click`, this._clickHandler);
   }
 
+  restoreHandlers() {
+    this.setClickHandler(this._callback.click);
+  }
+
   _clickHandler(evt) {
     if (evt.target.classList.contains(`sort__button`)) {
       evt.preventDefault();
 
       this._callback.click(evt.target.dataset.sortType);
     }
-  }
-
-  restoreHandlers() {
-    this.setClickHandler(this._callback.click);
   }
 }

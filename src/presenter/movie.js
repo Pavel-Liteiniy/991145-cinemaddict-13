@@ -15,11 +15,11 @@ export default class Movie {
     this._api = api;
 
     this._movieCardClickHandler = this._movieCardClickHandler.bind(this);
-    this._movieCardClickButtonHandler = this._movieCardClickButtonHandler.bind(this);
+    this._movieCardClickControlHandler = this._movieCardClickControlHandler.bind(this);
     this._popupEscKeyDownHandler = this._popupEscKeyDownHandler.bind(this);
     this._popupClickHandler = this._popupClickHandler.bind(this);
     this._popupClickButtonHandler = this._popupClickButtonHandler.bind(this);
-    this._popupSubmitCommentHandler = this._popupSubmitCommentHandler.bind(this);
+    this._commentSubmitHandler = this._commentSubmitHandler.bind(this);
     this._popupClickDeleteCommentButtonHandler = this._popupClickDeleteCommentButtonHandler.bind(this);
   }
 
@@ -29,8 +29,8 @@ export default class Movie {
     const prevMovieCardComponent = this._movieCardComponent;
 
     this._movieCardComponent = new MovieCardView(this._film);
-    this._movieCardComponent.setClickHandler(this._movieCardClickHandler);
-    this._movieCardComponent.setClickButtonHandler(this._movieCardClickButtonHandler);
+    this._movieCardComponent.setClickCardHandler(this._movieCardClickHandler);
+    this._movieCardComponent.setClickControlHandler(this._movieCardClickControlHandler);
 
     if (prevMovieCardComponent === null) {
       render(this._movieContainer, this._movieCardComponent);
@@ -68,7 +68,7 @@ export default class Movie {
       .then((comments) => {
         this._popupComponent.film = Object.assign({}, this._film, {comments});
 
-        this._popupComponent.setClickHandler(this._popupClickHandler);
+        this._popupComponent.setCloseButtonClickHandler(this._popupClickHandler);
         this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
         this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
 
@@ -77,26 +77,26 @@ export default class Movie {
       .catch(() => {
         this._popupComponent.film = Object.assign({}, this._film, {comments: []});
 
-        this._popupComponent.setClickHandler(this._popupClickHandler);
+        this._popupComponent.setCloseButtonClickHandler(this._popupClickHandler);
         this._popupComponent.setClickButtonHandler(this._popupClickButtonHandler);
         this._popupComponent.setClickDeleteCommentButtonHandler(this._popupClickDeleteCommentButtonHandler);
 
         render(this._bodyElement, this._popupComponent);
       });
 
-    this._popupComponent.setSubmitCommentHandler(this._popupSubmitCommentHandler);
+    this._popupComponent.setCommentSubmitHandler(this._commentSubmitHandler);
     this._popupComponent.setEscKeyDownHandler(this._popupEscKeyDownHandler);
 
     this._bodyElement.classList.add(`hide-overflow`);
   }
 
-  _movieCardClickButtonHandler(film) {
+  _movieCardClickControlHandler(film) {
     this._handleFilmChange(UserAction.UPDATE_MOVIE, film);
   }
 
   _popupClickHandler() {
     this._popupComponent.removeEscKeyDownHandler();
-    this._popupComponent.removeSubmitCommentHandler();
+    this._popupComponent.removeCommentSubmitHandler();
     remove(this._popupComponent);
     this._bodyElement.classList.remove(`hide-overflow`);
   }
@@ -105,7 +105,7 @@ export default class Movie {
     this._handleFilmChange(UserAction.UPDATE_MOVIE, film);
   }
 
-  _popupSubmitCommentHandler(film) {
+  _commentSubmitHandler(film) {
     if (!isOnline()) {
       toast(`You can't add new comment offline`);
       this._popupComponent.enableSubmitting();

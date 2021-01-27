@@ -26,12 +26,12 @@ export default class Smart extends Abstract {
 
   updateElement() {
     let prevElement = this.getElement();
-    const parent = prevElement.parentElement;
+    const parentElement = prevElement.parentElement;
     this.removeElement();
 
     const newElement = this.getElement();
 
-    parent.replaceChild(newElement, prevElement);
+    parentElement.replaceChild(newElement, prevElement);
 
     this.restoreHandlers();
   }

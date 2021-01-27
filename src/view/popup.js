@@ -8,9 +8,11 @@ import {FilmsCollection} from "../const";
 dayjs.extend(relativeTime);
 dayjs.extend(durationDayjs);
 
-const KEY_ESCAPE = `Escape`;
-const KEY_ESC = `Esc`;
-const KEY_ENTER = `Enter`;
+const KeyName = {
+  ESCAPE: `Escape`,
+  ESC: `Esc`,
+  ENTER: `Enter`,
+};
 
 const Emoji = {
   SMILE: {
@@ -198,10 +200,10 @@ export default class Popup extends SmartView {
     super();
     this._emojiSelected = {};
 
-    this._clickHandler = this._clickHandler.bind(this);
+    this._closeButtonClickHandler = this._closeButtonClickHandler.bind(this);
     this._clickButtonHandler = this._clickButtonHandler.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
-    this._changeEmojiHandler = this._changeEmojiHandler.bind(this);
+    this._emojiChangeHandler = this._emojiChangeHandler.bind(this);
     this._clickDeleteCommentButtonHandler = this._clickDeleteCommentButtonHandler.bind(this);
     this._submitCommentHandler = this._submitCommentHandler.bind(this);
   }
@@ -215,6 +217,20 @@ export default class Popup extends SmartView {
     return this._data;
   }
 
+  updateElement() {
+    let prevElement = this.getElement();
+    this._scrollTop = prevElement.scrollTop;
+    const parentElement = prevElement.parentElement;
+    this.removeElement();
+
+    const newElement = this.getElement();
+
+    parentElement.replaceChild(newElement, prevElement);
+
+    this.restoreHandlers();
+    this.updateScrollTop();
+  }
+
   getTemplate() {
     return createPopup(this._data, this._emojiSelected);
   }
@@ -223,35 +239,73 @@ export default class Popup extends SmartView {
     this.getElement().scrollTop = this._scrollTop;
   }
 
-  updateElement() {
-    let prevElement = this.getElement();
-    this._scrollTop = prevElement.scrollTop;
-    const parent = prevElement.parentElement;
-    this.removeElement();
-
-    const newElement = this.getElement();
-
-    parent.replaceChild(newElement, prevElement);
-
-    this.restoreHandlers();
-    this.updateScrollTop();
-  }
-
-  setClickHandler(callback) {
+  setCloseButtonClickHandler(callback) {
     this._callback.click = callback;
 
-    this.getElement().querySelector(`.film-details__close-btn`).addEventListener(`click`, this._clickHandler);
-  }
-
-  _clickHandler(evt) {
-    evt.preventDefault();
-    this.resetEmojiSelected();
-    this._callback.click();
+    this.getElement().querySelector(`.film-details__close-btn`).addEventListener(`click`, this._closeButtonClickHandler);
   }
 
   setClickDeleteCommentButtonHandler(callback) {
     this._callback.clickDeleteCommentButton = callback;
     this.getElement().querySelector(`.film-details__comments-list`).addEventListener(`click`, this._clickDeleteCommentButtonHandler);
+  }
+
+  setClickButtonHandler(callback) {
+    this._callback.clickButton = callback;
+
+    this.getElement().querySelector(`.film-details__controls`).addEventListener(`change`, this._clickButtonHandler);
+  }
+
+  setEscKeyDownHandler(callback) {
+    this._callback.escKeyDown = callback;
+
+    document.addEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  removeEscKeyDownHandler() {
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
+  setCommentSubmitHandler(callback) {
+    this._callback.submitComment = callback;
+    document.addEventListener(`keydown`, this._submitCommentHandler);
+  }
+
+  removeCommentSubmitHandler() {
+    document.removeEventListener(`keydown`, this._submitCommentHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+
+    this.setCloseButtonClickHandler(this._callback.click);
+    this.setClickDeleteCommentButtonHandler(this._callback.clickDeleteCommentButton);
+    this.setCommentSubmitHandler(this._callback.submitComment);
+    this.setClickButtonHandler(this._callback.clickButton);
+    this.setEscKeyDownHandler(this._callback.escKeyDown);
+  }
+
+  enableSubmitting() {
+    this._messageElement.disabled = false;
+
+    Array.from(this._emojiElements).forEach((emojiButton) => {
+      emojiButton.disabled = false;
+    });
+  }
+
+  enableDeleting() {
+    this._deletinigCommentButtonElement.disabled = false;
+    this._deletinigCommentButtonElement.textContent = `Delete`;
+  }
+
+  resetEmojiSelected() {
+    this._emojiSelected = {};
+  }
+
+  _closeButtonClickHandler(evt) {
+    evt.preventDefault();
+    this.resetEmojiSelected();
+    this._callback.click();
   }
 
   _clickDeleteCommentButtonHandler(evt) {
@@ -268,12 +322,6 @@ export default class Popup extends SmartView {
       this._scrollTop = this.getElement().scrollTop;
       this._callback.clickDeleteCommentButton({movie: this._data, deletedComment: this._data.comments[commentIndex], deletedCommentIndex: commentIndex});
     }
-  }
-
-  setClickButtonHandler(callback) {
-    this._callback.clickButton = callback;
-
-    this.getElement().querySelector(`.film-details__controls`).addEventListener(`change`, this._clickButtonHandler);
   }
 
   _clickButtonHandler(evt) {
@@ -296,31 +344,12 @@ export default class Popup extends SmartView {
     }
   }
 
-  setEscKeyDownHandler(callback) {
-    this._callback.escKeyDown = callback;
-
-    document.addEventListener(`keydown`, this._escKeyDownHandler);
-  }
-
-  removeEscKeyDownHandler() {
-    document.removeEventListener(`keydown`, this._escKeyDownHandler);
-  }
-
   _escKeyDownHandler(evt) {
-    if (evt.key === KEY_ESCAPE || evt.key === KEY_ESC) {
+    if (evt.key === KeyName.ESCAPE || evt.key === KeyName.ESC) {
       evt.preventDefault();
       this.resetEmojiSelected();
       this._callback.escKeyDown();
     }
-  }
-
-  setSubmitCommentHandler(callback) {
-    this._callback.submitComment = callback;
-    document.addEventListener(`keydown`, this._submitCommentHandler);
-  }
-
-  removeSubmitCommentHandler() {
-    document.removeEventListener(`keydown`, this._submitCommentHandler);
   }
 
   _submitCommentHandler(evt) {
@@ -331,7 +360,7 @@ export default class Popup extends SmartView {
 
     this._emojiElements = this.getElement().querySelectorAll(`.film-details__emoji-item`);
 
-    if (evt.ctrlKey && evt.key === KEY_ENTER && message && this._isEmojiChecked()) {
+    if (evt.ctrlKey && evt.key === KeyName.ENTER && message && this._isEmojiChecked()) {
       evt.preventDefault();
 
       this._messageElement.disabled = true;
@@ -345,19 +374,9 @@ export default class Popup extends SmartView {
     }
   }
 
-  restoreHandlers() {
-    this._setInnerHandlers();
-
-    this.setClickHandler(this._callback.click);
-    this.setClickDeleteCommentButtonHandler(this._callback.clickDeleteCommentButton);
-    this.setSubmitCommentHandler(this._callback.submitComment);
-    this.setClickButtonHandler(this._callback.clickButton);
-    this.setEscKeyDownHandler(this._callback.escKeyDown);
-  }
-
   _setInnerHandlers() {
     if (Object.keys(this._data).length !== 0) {
-      this.getElement().querySelector(`.film-details__emoji-list`).addEventListener(`change`, this._changeEmojiHandler);
+      this.getElement().querySelector(`.film-details__emoji-list`).addEventListener(`change`, this._emojiChangeHandler);
     }
   }
 
@@ -375,7 +394,7 @@ export default class Popup extends SmartView {
     return isChecked;
   }
 
-  _changeEmojiHandler(evt) {
+  _emojiChangeHandler(evt) {
     if (evt.target.classList.contains(`film-details__emoji-item`)) {
 
       if (this.emojiSelected === evt.target.value) {
@@ -399,27 +418,11 @@ export default class Popup extends SmartView {
           break;
       }
 
-      const message = this.getElement().querySelector(`.film-details__comment-input`).value;
+      const messageElement = this.getElement().querySelector(`.film-details__comment-input`).value;
       this.updateElement();
-      this.getElement().querySelector(`.film-details__comment-input`).value = message;
+      this.getElement().querySelector(`.film-details__comment-input`).value = messageElement;
       this.updateScrollTop();
     }
   }
 
-  enableSubmitting() {
-    this._messageElement.disabled = false;
-
-    Array.from(this._emojiElements).forEach((emojiButton) => {
-      emojiButton.disabled = false;
-    });
-  }
-
-  enableDeleting() {
-    this._deletinigCommentButtonElement.disabled = false;
-    this._deletinigCommentButtonElement.textContent = `Delete`;
-  }
-
-  resetEmojiSelected() {
-    this._emojiSelected = {};
-  }
 }
