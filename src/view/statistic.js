@@ -70,11 +70,7 @@ export default class Statistic extends SmartView {
     this._statisticPeriodClickHandler = this._statisticPeriodClickHandler.bind(this);
   }
 
-  getTemplate() {
-    return createStatistic(this._data);
-  }
-
-  setFilms(films) {
+  set films(films) {
     this.updateData({films}, true);
     this._getStatistic();
     this._getRank();
@@ -82,7 +78,7 @@ export default class Statistic extends SmartView {
     this._setChart();
   }
 
-  getFilms() {
+  get films() {
     return this._data.films.slice().filter((film) => {
       if (film.inWatchedCollection) {
         if (this._data.timeRangeSelected === TimeRange.ALL_TIME) {
@@ -110,6 +106,14 @@ export default class Statistic extends SmartView {
     });
   }
 
+  getTemplate() {
+    return createStatistic(this._data);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+  }
+
   _getStatistic() {
     const statistic = {
       watchedMoviesCount: 0,
@@ -117,7 +121,7 @@ export default class Statistic extends SmartView {
       genre: {},
     };
 
-    this.getFilms().map((film) => {
+    this.films.map((film) => {
       statistic.moviesDuration += film.duration;
       statistic.watchedMoviesCount += 1;
 
@@ -162,18 +166,14 @@ export default class Statistic extends SmartView {
     }
   }
 
-  restoreHandlers() {
-    this._setInnerHandlers();
-  }
-
   _setChart() {
     const labels = Object.keys(this._data.genre);
     const labelsCount = Object.values(this._data.genre);
-    const statisticCtx = this.getElement().querySelector(`.statistic__chart`);
+    const statisticCtxElement = this.getElement().querySelector(`.statistic__chart`);
 
-    statisticCtx.height = BAR_HEIGHT * labels.length;
+    statisticCtxElement.height = BAR_HEIGHT * labels.length;
 
-    this._chart = new Chart(statisticCtx, {
+    this._chart = new Chart(statisticCtxElement, {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {

@@ -10,8 +10,11 @@ import TopRatedFilmsView from "../view/top-rated-films";
 import MostCommentedFilmsView from "../view/most-commented-films";
 import MoviePresenter from "./movie";
 
-const CARDS_COUNT = 5;
-const CARDS_EXTRA_COUNT = 2;
+const CardsCount = {
+  DEFAULT: 5,
+  EXTRA: 2,
+};
+
 const TypeExtraFilms = {
   MOST_COMMENTED: `most commented`,
   TOP_RATED: `top rated`
@@ -23,9 +26,9 @@ export default class MovieList {
     this._moviesModel = moviesModel;
     this._filterModel = filterModel;
     this._api = api;
-    this._cardsCount = CARDS_COUNT;
+    this._cardsCount = CardsCount.DEFAULT;
     this._renderedFilms = this._cardsCount;
-    this._cardsExtraCount = CARDS_EXTRA_COUNT;
+    this._cardsExtraCount = CardsCount.EXTRA;
     this._typeExtraFilms = TypeExtraFilms;
     this._allMoviesPresenters = new Map();
     this._topRatedMoviesPresenters = new Map();
@@ -79,7 +82,7 @@ export default class MovieList {
   }
 
   _getMovies() {
-    let movies = this._moviesModel.getMovies().slice();
+    let movies = this._moviesModel.collection.slice();
 
     switch (this._filterSelected) {
       case FilterType.WATCHLIST:
@@ -121,7 +124,7 @@ export default class MovieList {
     this._filmsCatalogComponent = new FilmsCatalogView();
     this._filmsCatalogComponent.setFilms(this._getMovies());
     this._filmsCatalogComponent.setLoadingStatus(this._isLoading);
-    this._filmsCardContainer = this._filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
+    this._filmsCardContainerElement = this._filmsCatalogComponent.getElement().querySelector(`.films-list__container`);
 
     if (prevFilmsCatalogComponent === null) {
       render(this._filmsWrapperComponent, this._filmsCatalogComponent);
@@ -137,7 +140,7 @@ export default class MovieList {
 
   _renderMoviesListAll() {
     this._renderMoviesAllContainer();
-    this._renderFilmCardElements(this._filmsCardContainer, this._getMovies().slice(0, this._renderedFilms));
+    this._renderFilmCardElements(this._filmsCardContainerElement, this._getMovies().slice(0, this._renderedFilms));
 
     if (this._getMovies().length > this._renderedFilms) {
       this._renderShowButton();
@@ -150,7 +153,7 @@ export default class MovieList {
   }
 
   _renderMovieListsExtra() {
-    const movies = this._moviesModel.getMovies().slice();
+    const movies = this._moviesModel.collection.slice();
     if (movies.length > 0) {
       this._createExtraFilmsElement(movies, this._typeExtraFilms.TOP_RATED);
       this._createExtraFilmsElement(movies, this._typeExtraFilms.MOST_COMMENTED);
@@ -169,7 +172,7 @@ export default class MovieList {
     const moviesCount = this._getMovies().length;
     const newRenderedFilms = Math.min(moviesCount, this._renderedFilms + this._cardsCount);
 
-    this._renderFilmCardElements(this._filmsCardContainer, this._getMovies().slice(this._renderedFilms, newRenderedFilms));
+    this._renderFilmCardElements(this._filmsCardContainerElement, this._getMovies().slice(this._renderedFilms, newRenderedFilms));
     this._renderedFilms = newRenderedFilms;
 
     if (this._renderedFilms >= moviesCount) {
@@ -191,11 +194,11 @@ export default class MovieList {
 
   _renderTopRatedFilms(componentContainer, movies) {
     render(this._filmsWrapperComponent, componentContainer);
-    const componentFilmsContainer = componentContainer.getElement().querySelector(`.films-list__container`);
+    const filmsContainerElement = componentContainer.getElement().querySelector(`.films-list__container`);
 
-    if (componentFilmsContainer) {
+    if (filmsContainerElement) {
       movies.map((movie) => {
-        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction, this._api);
+        const filmComponent = new MoviePresenter(filmsContainerElement, this._popupComponent, this._handleViewAction, this._api);
         filmComponent.init(movie);
         this._topRatedMoviesPresenters.set(movie.id, filmComponent);
       });
@@ -204,11 +207,11 @@ export default class MovieList {
 
   _renderMostCommentedFilms(componentContainer, movies) {
     render(this._filmsWrapperComponent, componentContainer);
-    const componentFilmsContainer = componentContainer.getElement().querySelector(`.films-list__container`);
+    const filmsContainerElement = componentContainer.getElement().querySelector(`.films-list__container`);
 
-    if (componentFilmsContainer) {
+    if (filmsContainerElement) {
       movies.map((movie) => {
-        const filmComponent = new MoviePresenter(componentFilmsContainer, this._popupComponent, this._handleViewAction, this._api);
+        const filmComponent = new MoviePresenter(filmsContainerElement, this._popupComponent, this._handleViewAction, this._api);
         filmComponent.init(movie);
         this._mostCommentedMoviesPresenters.set(movie.id, filmComponent);
       });
@@ -235,7 +238,7 @@ export default class MovieList {
       case UserAction.UPDATE_MOVIE:
         this._api.updateMovie(update)
           .then((response) => {
-            this._moviesModel.updateMovie(UpdateType.MINOR, response);
+            this._moviesModel.updateMovie(UpdateType.MINOR, Object.assign({}, response, {comments: update.comments}));
           });
         break;
       case UserAction.ADD_COMMENT:
@@ -269,7 +272,7 @@ export default class MovieList {
           this._allMoviesPresenters.get(data.id).init(data);
         }
         this._clearMostCommentedMoviesList();
-        this._createExtraFilmsElement(this._moviesModel.getMovies().slice(), this._typeExtraFilms.MOST_COMMENTED);
+        this._createExtraFilmsElement(this._moviesModel.collection.slice(), this._typeExtraFilms.MOST_COMMENTED);
         if (this._topRatedMoviesPresenters.has(data.id)) {
           this._topRatedMoviesPresenters.get(data.id).init(data);
         }

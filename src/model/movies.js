@@ -12,13 +12,13 @@ export default class Movies extends Observer {
     };
   }
 
-  setMovies(updateType, movies) {
+  set collection({updateType, movies}) {
     this._movies = movies.slice();
     this._getMovieCount();
     this._notify(updateType);
   }
 
-  getMovies() {
+  get collection() {
     return this._movies;
   }
 

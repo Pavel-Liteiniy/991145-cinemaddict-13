@@ -5,11 +5,13 @@ import {FilmsCollection} from "../const";
 
 dayjs.extend(durationDayjs);
 
-const DESCRIPTION_MAX_LENGTH = 140;
-const DESCRIPTION_LAST_ITEM = `…`;
+const Description = {
+  maxLength: 140,
+  lastItem: `…`,
+};
 
 const getCheckedDescription = (description) => {
-  return description.length > DESCRIPTION_MAX_LENGTH ? (description.slice(0, DESCRIPTION_MAX_LENGTH - 2) + DESCRIPTION_LAST_ITEM) : description;
+  return description.length > Description.maxLength ? (description.slice(0, Description.maxLength - 2) + Description.lastItem) : description;
 };
 
 const createFilmCard = ({title, genre, poster, description, date, duration, comments, rating, inWatchListCollection, inWatchedCollection, inFavoriteCollection}) => {
@@ -42,34 +44,34 @@ export default class MovieCard extends AbstractView {
 
     this._filmsCollection = FilmsCollection;
 
-    this._clickHandler = this._clickHandler.bind(this);
-    this._clickButtonHandler = this._clickButtonHandler.bind(this);
+    this._clickCardHandler = this._clickCardHandler.bind(this);
+    this._clickControlHandler = this._clickControlHandler.bind(this);
   }
 
   getTemplate() {
     return createFilmCard(this._film);
   }
 
-  setClickHandler(callback) {
+  setClickCardHandler(callback) {
     this._callback.click = callback;
 
-    this.getElement().querySelector(`.film-card__title`).addEventListener(`click`, this._clickHandler);
-    this.getElement().querySelector(`img`).addEventListener(`click`, this._clickHandler);
-    this.getElement().querySelector(`.film-card__comments`).addEventListener(`click`, this._clickHandler);
+    this.getElement().querySelector(`.film-card__title`).addEventListener(`click`, this._clickCardHandler);
+    this.getElement().querySelector(`img`).addEventListener(`click`, this._clickCardHandler);
+    this.getElement().querySelector(`.film-card__comments`).addEventListener(`click`, this._clickCardHandler);
   }
 
-  _clickHandler(evt) {
+  setClickControlHandler(callback) {
+    this._callback.clickControl = callback;
+
+    this.getElement().querySelector(`.film-card__controls`).addEventListener(`click`, this._clickControlHandler);
+  }
+
+  _clickCardHandler(evt) {
     evt.preventDefault();
     this._callback.click(this._film);
   }
 
-  setClickButtonHandler(callback) {
-    this._callback.clickButton = callback;
-
-    this.getElement().querySelector(`.film-card__controls`).addEventListener(`click`, this._clickButtonHandler);
-  }
-
-  _clickButtonHandler(evt) {
+  _clickControlHandler(evt) {
     if (evt.target.classList.contains(`film-card__controls-item`)) {
       evt.preventDefault();
 
@@ -85,7 +87,7 @@ export default class MovieCard extends AbstractView {
           break;
       }
 
-      this._callback.clickButton(this._film);
+      this._callback.clickControl(this._film);
     }
   }
 }
