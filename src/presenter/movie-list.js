@@ -235,7 +235,7 @@ export default class MovieList {
       case UserAction.UPDATE_MOVIE:
         this._api.updateMovie(update)
           .then((response) => {
-            this._moviesModel.updateMovie(UpdateType.MINOR, response);
+            this._moviesModel.updateMovie(UpdateType.MINOR, Object.assign({}, response, {comments: update.comments}));
           });
         break;
       case UserAction.ADD_COMMENT:

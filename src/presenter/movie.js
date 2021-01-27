@@ -59,6 +59,7 @@ export default class Movie {
 
     if (Object.keys(this._popupComponent.film).length !== 0) {
       this._popupComponent.removeEscKeyDownHandler();
+      this._popupComponent.resetEmojiSelected();
       remove(this._popupComponent);
       this._bodyElement.classList.remove(`hide-overflow`);
     }

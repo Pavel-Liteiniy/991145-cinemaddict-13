@@ -245,7 +245,7 @@ export default class Popup extends SmartView {
 
   _clickHandler(evt) {
     evt.preventDefault();
-    this._emojiSelected = {};
+    this.resetEmojiSelected();
     this._callback.click();
   }
 
@@ -309,7 +309,7 @@ export default class Popup extends SmartView {
   _escKeyDownHandler(evt) {
     if (evt.key === KEY_ESCAPE || evt.key === KEY_ESC) {
       evt.preventDefault();
-      this._emojiSelected = {};
+      this.resetEmojiSelected();
       this._callback.escKeyDown();
     }
   }
@@ -340,7 +340,7 @@ export default class Popup extends SmartView {
       });
 
       this._scrollTop = this.getElement().scrollTop;
-      this._emojiSelected = {};
+      this.resetEmojiSelected();
       this._callback.submitComment({movie: this._data, newComment: {message, emoji, date: dayjs()}});
     }
   }
@@ -417,5 +417,9 @@ export default class Popup extends SmartView {
   enableDeleting() {
     this._deletinigCommentButtonElement.disabled = false;
     this._deletinigCommentButtonElement.textContent = `Delete`;
+  }
+
+  resetEmojiSelected() {
+    this._emojiSelected = {};
   }
 }
