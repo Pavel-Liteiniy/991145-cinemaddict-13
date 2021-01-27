@@ -38,9 +38,9 @@ const Emoji = {
 };
 
 const createComments = (comments) => {
-  let commentsList = [];
+  const commentsList = [];
 
-  for (let {message, emoji, author, date} of comments) {
+  for (const {message, emoji, author, date} of comments) {
     commentsList.push(`<li class="film-details__comment">
     <span class="film-details__comment-emoji">
       <img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">
@@ -218,7 +218,7 @@ export default class Popup extends SmartView {
   }
 
   updateElement() {
-    let prevElement = this.getElement();
+    const prevElement = this.getElement();
     this._scrollTop = prevElement.scrollTop;
     const parentElement = prevElement.parentElement;
     this.removeElement();

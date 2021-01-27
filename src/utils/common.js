@@ -35,7 +35,7 @@ export const updateItem = (items, update, index) => {
 export const getRank = (watchedFilmsCount) => {
   let userRank = false;
 
-  for (let [range, rank] of USER_RANK) {
+  for (const [range, rank] of USER_RANK) {
     if (watchedFilmsCount >= range[0] && watchedFilmsCount <= range[1]) {
       userRank = rank;
       break;

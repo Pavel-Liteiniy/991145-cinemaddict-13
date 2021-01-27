@@ -166,7 +166,7 @@ export default class Movies extends Observer {
 
   static adaptMovieWithCommentsToClient({comments, movie}) {
 
-    let adaptedComments = comments.map((comment) => {
+    const adaptedComments = comments.map((comment) => {
       return {
         id: comment.id,
         author: comment.author,
@@ -176,7 +176,7 @@ export default class Movies extends Observer {
       };
     });
 
-    let adaptedMovie = Movies.adaptMovieToClient(movie);
+    const adaptedMovie = Movies.adaptMovieToClient(movie);
 
     const adaptedMovieWithComments = Object.assign(
         {},
