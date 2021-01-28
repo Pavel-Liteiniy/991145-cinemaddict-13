@@ -2,7 +2,7 @@ import {remove, render, replace} from "../utils/render";
 import {isOnline} from "../utils/common.js";
 import {toast} from "../utils/toast/toast.js";
 import {UserAction} from "../const";
-import MovieCardView from "../view/film-card";
+import MovieCardView from "../view/movie-card";
 
 export default class Movie {
   constructor(movieContainer, popupComponent, handleFilmChange, api) {

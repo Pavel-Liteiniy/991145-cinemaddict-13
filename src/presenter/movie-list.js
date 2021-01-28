@@ -3,7 +3,7 @@ import {SortType, UserAction, UpdateType, FilterType} from "../const";
 import {remove, render, replace} from "../utils/render";
 import FilmsWrapperView from "../view/films-wrapper";
 import FilmsCatalogView from "../view/films-catalog";
-import MoviesSortView from "../view/sort";
+import MoviesSortView from "../view/movies-sort";
 import ShowButtonView from "../view/show-button";
 import PopupView from "../view/popup";
 import TopRatedFilmsView from "../view/top-rated-films";

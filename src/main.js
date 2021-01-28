@@ -5,7 +5,7 @@ import Provider from "./api/provider";
 import {remove, render} from "./utils/render";
 import UserRankView from "./view/user-rank";
 import StatisticView from "./view/statistic";
-import MoviesSummaryView from "./view/movies-statistic";
+import MoviesSummaryView from "./view/movies-summary";
 import MovieListPresenter from "./presenter/movie-list";
 import MenuPresenter from "./presenter/menu";
 import MoviesModel from "./model/movies";
