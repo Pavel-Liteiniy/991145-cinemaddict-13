@@ -1,4 +1,4 @@
-# Проект «Киноман» [![Build status][travis-image]][travis-url]
+# Проект «Киноман» ( [live demo](https://pavel-liteiniy.github.io/991145-cinemaddict-13/) )
 
 - Студент: [Pavel Sevostyanov](https://up.htmlacademy.ru/ecmascript/13/user/991145).
 - Наставник: [Евгений Лепёшкин](https://htmlacademy.ru/profile/id144641).
